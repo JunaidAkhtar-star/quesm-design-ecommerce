@@ -11,6 +11,7 @@ const dispatchEmail = async ({ to, subject, html, text, replyTo, headers }) => {
       const res = await fetch(process.env.GMAIL_WEBHOOK_URL.trim(), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        redirect: 'follow',
         body: JSON.stringify({
           to: Array.isArray(to) ? to.join(', ') : to,
           subject,

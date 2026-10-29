@@ -180,50 +180,42 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Test send live email endpoint
-app.get('/api/health/send-test-email', async (req, res) => {
+// Test Google Apps Script Webhook directly
+app.get('/api/health/test-webhook', async (req, res) => {
   const to = req.query.to || 'contactquesmdesign@gmail.com';
-  try {
-    const { sendCustomerOrderEmail } = require('./utils/email');
-    const mockOrder = {
-      orderNumber: 'TEST-' + Date.now().toString().slice(-4),
-      customer: { name: 'Junaid Akhtar', email: to, phone: '7978201960' },
-      items: [{ name: 'Silk Thread Royal Bangle', quantity: 1, total: 499 }],
-      subtotal: 499,
-      shippingFee: 0,
-      totalAmount: 499,
-      paymentMethod: 'cod',
-      paymentStatus: 'pending'
-    };
-    
-    // Direct call to Resend to inspect exact response
-    const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) {
-      return res.status(400).json({ success: false, error: 'No RESEND_API_KEY set' });
-    }
+  const webhookUrl = process.env.GMAIL_WEBHOOK_URL;
+  if (!webhookUrl) {
+    return res.status(400).json({ success: false, error: 'No GMAIL_WEBHOOK_URL configured' });
+  }
 
-    const resendRes = await fetch('https://api.resend.com/emails', {
+  try {
+    const fetchRes = await fetch(webhookUrl.trim(), {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey.trim()}`,
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: process.env.RESEND_FROM || 'QueS.M design <onboarding@resend.dev>',
-        to: [to],
-        subject: 'QueS.M design - Live Test Email',
-        html: '<h2>Order Confirmation Test</h2><p>Your email system on Render is connected!</p>'
-      })
+        to,
+        subject: 'QueS.M design - Live Webhook Test',
+        html: '<h2>Order Confirmation Test</h2><p>Your Google Apps Script Webhook is active and working!</p>',
+        text: 'Your Google Apps Script Webhook is active and working!'
+      }),
+      redirect: 'follow'
     });
 
-    const data = await resendRes.json();
-    return res.status(resendRes.ok ? 200 : 400).json({
-      resendStatus: resendRes.status,
-      resendOk: resendRes.ok,
+    const text = await fetchRes.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      data = text;
+    }
+
+    res.json({
+      status: fetchRes.status,
+      ok: fetchRes.ok,
       data
     });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 // Email delivery diagnostic check (Google Apps Script Webhook + Resend HTTPS + SMTP)
