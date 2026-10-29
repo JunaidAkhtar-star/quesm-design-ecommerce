@@ -90,23 +90,27 @@ exports.verifyRazorpayPayment = async (req, res) => {
         { new: true }
       );
 
-      if (order) {
-        try {
-          const emailResults = await Promise.allSettled([
-            sendCustomerOrderEmail(order),
-            sendAdminNewOrderEmail(order)
-          ]);
-          console.log(`[Payment Notifications] Email results for #${order.orderNumber}:`, emailResults.map(r => r.status));
-        } catch (emailErr) {
-          console.error(`[Payment Notifications Error] Order #${order.orderNumber}:`, emailErr.message);
-        }
-      }
-
-      return res.status(200).json({
+      // Respond to client immediately so payment completion never hangs
+      res.status(200).json({
         success: true,
         message: 'Payment verified successfully (Mock)',
         order
       });
+
+      // Dispatch notifications in background
+      if (order) {
+        setImmediate(async () => {
+          try {
+            await Promise.allSettled([
+              sendCustomerOrderEmail(order),
+              sendAdminNewOrderEmail(order)
+            ]);
+          } catch (emailErr) {
+            console.warn(`[Payment Notification Error] Order #${order.orderNumber}:`, emailErr.message);
+          }
+        });
+      }
+      return;
     }
 
     // Server-side HMAC SHA-256 signature verification

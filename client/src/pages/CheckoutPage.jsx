@@ -92,10 +92,15 @@ const CheckoutPage = () => {
         body: JSON.stringify(orderPayload)
       });
 
-      const orderData = await orderRes.json();
+      let orderData;
+      try {
+        orderData = await orderRes.json();
+      } catch (jsonErr) {
+        throw new Error('Server connection was interrupted. Please try again.');
+      }
 
-      if (!orderData.success) {
-        setErrorMessage(orderData.message || 'Failed to place order');
+      if (!orderRes.ok || !orderData.success) {
+        setErrorMessage(orderData?.message || 'Failed to place order. Please try again.');
         setSubmitting(false);
         return;
       }
@@ -128,7 +133,12 @@ const CheckoutPage = () => {
           body: JSON.stringify({ amount: grandTotal, receipt: createdOrder.orderNumber })
         });
 
-        const rzpData = await razorpayRes.json();
+        let rzpData;
+        try {
+          rzpData = await razorpayRes.json();
+        } catch (e) {
+          throw new Error('Payment gateway initialization timed out. Please try again.');
+        }
 
         // Check if Razorpay script is ready
         if (window.Razorpay && !rzpData.isSandboxMock) {
@@ -191,7 +201,12 @@ const CheckoutPage = () => {
             })
           });
 
-          const verifyData = await verifyRes.json();
+          let verifyData;
+          try {
+            verifyData = await verifyRes.json();
+          } catch (e) {
+            throw new Error('Payment verification response interrupted.');
+          }
           if (verifyData.success) {
             confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
             clearCart();

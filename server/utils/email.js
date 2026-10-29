@@ -12,6 +12,9 @@ const createTransporter = () => {
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
       port: port,
       secure: port === 465,
+      connectionTimeout: 5000,
+      greetingTimeout: 4000,
+      socketTimeout: 6000,
       auth: {
         user: cleanUser,
         pass: cleanPass

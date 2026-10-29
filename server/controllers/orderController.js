@@ -155,21 +155,23 @@ exports.createGuestOrder = async (req, res) => {
       });
     }
 
-    // Send notifications concurrently and await delivery before returning
-    try {
-      const emailResults = await Promise.allSettled([
-        sendCustomerOrderEmail(order),
-        sendAdminNewOrderEmail(order)
-      ]);
-      console.log(`[Order Notifications] Email results for #${order.orderNumber}:`, emailResults.map(r => r.status));
-    } catch (emailErr) {
-      console.error(`[Order Notifications Error] Order #${order.orderNumber}:`, emailErr.message);
-    }
-
+    // Respond immediately to the client (<100ms) so customer checkout is instant
     res.status(201).json({
       success: true,
       message: 'Order placed successfully!',
       order
+    });
+
+    // Send customer and admin notification emails in background without blocking checkout
+    setImmediate(async () => {
+      try {
+        await Promise.allSettled([
+          sendCustomerOrderEmail(order),
+          sendAdminNewOrderEmail(order)
+        ]);
+      } catch (emailErr) {
+        console.warn(`[Background Email Error] Order #${order.orderNumber}:`, emailErr.message);
+      }
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
