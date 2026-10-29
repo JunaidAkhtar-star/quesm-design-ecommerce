@@ -180,7 +180,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Email SMTP diagnostic check
+// Email SMTP diagnostic check with fast 3-second timeout
 app.get('/api/health/email-check', async (req, res) => {
   const hasUser = !!process.env.SMTP_USER;
   const hasPass = !!process.env.SMTP_PASS;
@@ -206,6 +206,9 @@ app.get('/api/health/email-check', async (req, res) => {
       host,
       port: Number(port),
       secure: Number(port) === 465,
+      connectionTimeout: 3000,
+      greetingTimeout: 3000,
+      socketTimeout: 3000,
       auth: {
         user: process.env.SMTP_USER.trim(),
         pass: process.env.SMTP_PASS.trim().replace(/^["']|["']$/g, '').replace(/\s+/g, '')
@@ -223,6 +226,7 @@ app.get('/api/health/email-check', async (req, res) => {
     return res.status(200).json({
       status: 'smtp_failed',
       error: err.message,
+      code: err.code,
       host,
       port,
       user
