@@ -181,12 +181,30 @@ const Footer = () => {
       </div>
 
       {/* Footer Bottom */}
-      <div className="container footer-bottom">
+      <div className="container footer-bottom" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           &copy; {new Date().getFullYear()} <strong>QueS.M design</strong>. {t('rightsReserved')}
         </div>
-        <div>
-          Crafted with love for artisanal excellence
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '0.82rem' }}>
+          <span>Crafted with love for artisanal excellence</span>
+          <span style={{ color: '#444' }}>|</span>
+          <Link
+            to="/studio-vault"
+            style={{
+              color: '#d4af37',
+              textDecoration: 'none',
+              fontWeight: '600',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 10px',
+              borderRadius: '4px',
+              background: 'rgba(212, 175, 55, 0.1)',
+              border: '1px solid rgba(212, 175, 55, 0.3)'
+            }}
+          >
+            <ShieldCheck size={14} /> Owner Studio Vault
+          </Link>
         </div>
       </div>
     </footer>

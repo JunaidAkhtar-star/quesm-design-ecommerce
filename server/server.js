@@ -180,6 +180,56 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Email SMTP diagnostic check
+app.get('/api/health/email-check', async (req, res) => {
+  const hasUser = !!process.env.SMTP_USER;
+  const hasPass = !!process.env.SMTP_PASS;
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const port = process.env.SMTP_PORT || '587';
+  const user = process.env.SMTP_USER ? process.env.SMTP_USER.trim() : '(not set)';
+
+  if (!hasUser || !hasPass) {
+    return res.status(200).json({
+      status: 'error',
+      message: 'SMTP credentials missing from environment variables on Render',
+      hasUser,
+      hasPass,
+      host,
+      port,
+      user
+    });
+  }
+
+  try {
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
+      host,
+      port: Number(port),
+      secure: Number(port) === 465,
+      auth: {
+        user: process.env.SMTP_USER.trim(),
+        pass: process.env.SMTP_PASS.trim().replace(/^["']|["']$/g, '').replace(/\s+/g, '')
+      }
+    });
+    await transporter.verify();
+    return res.status(200).json({
+      status: 'ok',
+      message: 'Google SMTP Connected & Ready! Emails will deliver.',
+      host,
+      port,
+      user
+    });
+  } catch (err) {
+    return res.status(200).json({
+      status: 'smtp_failed',
+      error: err.message,
+      host,
+      port,
+      user
+    });
+  }
+});
+
 // Central Error Handler
 app.use(errorHandler);
 

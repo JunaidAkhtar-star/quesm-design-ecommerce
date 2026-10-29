@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Search, Heart, ShoppingBag, Menu, X, Globe } from 'lucide-react';
+import { Search, Heart, ShoppingBag, Menu, X, Globe, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -112,6 +112,17 @@ const Navbar = ({ onOpenSearch }) => {
               <ShoppingBag size={19} />
               {totalItemsCount > 0 && <span className="nav-badge">{totalItemsCount}</span>}
             </button>
+
+            {/* Owner Studio Vault Link */}
+            <Link
+              to="/studio-vault"
+              className="nav-action-btn"
+              aria-label="Owner Studio Vault"
+              title="Owner Studio Vault"
+              style={{ color: '#d4af37' }}
+            >
+              <ShieldCheck size={20} />
+            </Link>
           </div>
         </div>
       </header>
@@ -163,6 +174,21 @@ const Navbar = ({ onOpenSearch }) => {
               <Link to="/track-order" onClick={() => setMobileMenuOpen(false)}>{t('trackOrder')}</Link>
               <Link to="/contact" onClick={() => setMobileMenuOpen(false)}>{t('contact')}</Link>
               <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)}>{t('wishlist')} ({wishlistCount})</Link>
+              <Link
+                to="/studio-vault"
+                onClick={() => setMobileMenuOpen(false)}
+                style={{
+                  color: '#d4af37',
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  paddingTop: '8px',
+                  borderTop: '1px solid #eee'
+                }}
+              >
+                <ShieldCheck size={18} /> Owner Studio Vault
+              </Link>
             </div>
 
             <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>

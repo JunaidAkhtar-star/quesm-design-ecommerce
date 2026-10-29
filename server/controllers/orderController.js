@@ -155,9 +155,16 @@ exports.createGuestOrder = async (req, res) => {
       });
     }
 
-    // Send notifications
-    sendCustomerOrderEmail(order);
-    sendAdminNewOrderEmail(order);
+    // Send notifications concurrently and await delivery before returning
+    try {
+      const emailResults = await Promise.allSettled([
+        sendCustomerOrderEmail(order),
+        sendAdminNewOrderEmail(order)
+      ]);
+      console.log(`[Order Notifications] Email results for #${order.orderNumber}:`, emailResults.map(r => r.status));
+    } catch (emailErr) {
+      console.error(`[Order Notifications Error] Order #${order.orderNumber}:`, emailErr.message);
+    }
 
     res.status(201).json({
       success: true,

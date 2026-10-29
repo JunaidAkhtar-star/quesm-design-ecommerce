@@ -91,8 +91,15 @@ exports.verifyRazorpayPayment = async (req, res) => {
       );
 
       if (order) {
-        sendCustomerOrderEmail(order);
-        sendAdminNewOrderEmail(order);
+        try {
+          const emailResults = await Promise.allSettled([
+            sendCustomerOrderEmail(order),
+            sendAdminNewOrderEmail(order)
+          ]);
+          console.log(`[Payment Notifications] Email results for #${order.orderNumber}:`, emailResults.map(r => r.status));
+        } catch (emailErr) {
+          console.error(`[Payment Notifications Error] Order #${order.orderNumber}:`, emailErr.message);
+        }
       }
 
       return res.status(200).json({
