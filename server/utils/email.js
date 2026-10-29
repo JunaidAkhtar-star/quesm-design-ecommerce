@@ -2,6 +2,68 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env'), override: true });
 const nodemailer = require('nodemailer');
 
+
+// Universal Email Dispatcher: Resend HTTPS (Port 443, never blocked) + SMTP fallback
+const dispatchEmail = async ({ to, subject, html, text, replyTo, headers }) => {
+  // 1. If RESEND_API_KEY exists, send via HTTPS on port 443 (100% works on Render & Vercel)
+  if (process.env.RESEND_API_KEY) {
+    try {
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY.trim()}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: process.env.RESEND_FROM || 'QueS.M design <onboarding@resend.dev>',
+          to: Array.isArray(to) ? to : [to],
+          reply_to: replyTo,
+          subject,
+          html,
+          text
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        console.log(`[Email via Resend HTTPS] Delivered to ${to} (ID: ${data.id})`);
+        return true;
+      } else {
+        console.warn('[Resend API Error]:', data);
+      }
+    } catch (err) {
+      console.warn('[Resend API Exception]:', err.message);
+    }
+  }
+
+  // 2. Fallback to Nodemailer SMTP
+  const transporter = createTransporter();
+  if (transporter) {
+    try {
+      const storeEmail = process.env.STORE_EMAIL || 'contactquesmdesign@gmail.com';
+      const cleanFrom = process.env.FROM_EMAIL
+        ? process.env.FROM_EMAIL.trim().replace(/^["']|["']$/g, '')
+        : `"QueS.M design" <${storeEmail}>`;
+
+      const info = await transporter.sendMail({
+        from: cleanFrom,
+        to,
+        replyTo: replyTo || storeEmail,
+        subject,
+        text,
+        html,
+        headers
+      });
+      console.log(`[Email via SMTP] Delivered to ${to} (MsgId: ${info.messageId})`);
+      return true;
+    } catch (smtpErr) {
+      console.warn('[SMTP Error]:', smtpErr.message);
+    }
+  }
+
+  console.warn(`[Email Simulated] No active mail provider. Ready for ${to} | "${subject}"`);
+  return false;
+};
+
 const createTransporter = () => {
   if (process.env.SMTP_USER && process.env.SMTP_PASS) {
     const port = Number(process.env.SMTP_PORT) || 587;
