@@ -4,10 +4,13 @@ const upload = require('../middleware/upload');
 const { protectAdmin } = require('../middleware/auth');
 
 // Single image upload
-router.post('/single', protectAdmin, upload.single('image'), (req, res) => {
-  try {
+router.post('/single', protectAdmin, (req, res) => {
+  upload.single('image')(req, res, (err) => {
+    if (err) {
+      return res.status(400).json({ success: false, message: err.message || 'Image upload failed' });
+    }
     if (!req.file) {
-      return res.status(400).json({ success: false, message: 'Please select an image to upload' });
+      return res.status(400).json({ success: false, message: 'Please select an image file to upload' });
     }
 
     const fileUrl = `/uploads/${req.file.filename}`;
@@ -16,14 +19,15 @@ router.post('/single', protectAdmin, upload.single('image'), (req, res) => {
       message: 'Image uploaded successfully',
       url: fileUrl
     });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+  });
 });
 
 // Multiple images upload
-router.post('/multiple', protectAdmin, upload.array('images', 8), (req, res) => {
-  try {
+router.post('/multiple', protectAdmin, (req, res) => {
+  upload.array('images', 10)(req, res, (err) => {
+    if (err) {
+      return res.status(400).json({ success: false, message: err.message || 'Images upload failed' });
+    }
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ success: false, message: 'Please select images to upload' });
     }
@@ -34,9 +38,7 @@ router.post('/multiple', protectAdmin, upload.array('images', 8), (req, res) => 
       message: `${urls.length} images uploaded successfully`,
       urls
     });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+  });
 });
 
 module.exports = router;

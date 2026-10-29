@@ -24,7 +24,9 @@ import {
   Truck,
   Eye,
   AlertTriangle,
-  Key
+  Key,
+  UploadCloud,
+  Loader2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
@@ -82,7 +84,15 @@ const AdminDashboardPage = () => {
 
   // Categories State
   const [isCatModalOpen, setIsCatModalOpen] = useState(false);
-  const [catFormData, setCatFormData] = useState({ name: '', description: '', image: '' });
+  const [editingCatId, setEditingCatId] = useState(null);
+  const [catFormData, setCatFormData] = useState({ name: '', description: '', image: '', order: 0 });
+  const [catUploading, setCatUploading] = useState(false);
+
+  // Upload States
+  const [productUploading, setProductUploading] = useState(false);
+  const [bannerUploading, setBannerUploading] = useState(false);
+  const [manualImageUrl, setManualImageUrl] = useState('');
+  const [showManualUrlInput, setShowManualUrlInput] = useState(false);
 
   // Banners State
   const [banners, setBanners] = useState([]);
@@ -235,13 +245,104 @@ const AdminDashboardPage = () => {
     } catch (err) { alert('Error updating order'); }
   };
 
+  // Upload Helpers
+  const uploadImageFile = async (file) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    const res = await fetch('/api/upload/single', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      body: formData
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message || 'Image upload failed');
+    return data.url;
+  };
+
+  const uploadMultipleImageFiles = async (files) => {
+    const formData = new FormData();
+    Array.from(files).forEach(file => formData.append('images', file));
+    const res = await fetch('/api/upload/multiple', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      body: formData
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message || 'Images upload failed');
+    return data.urls;
+  };
+
+  // Category Actions
+  const handleSaveCategory = async (e) => {
+    e.preventDefault();
+    if (!catFormData.name.trim()) {
+      alert('Please enter a category name');
+      return;
+    }
+    try {
+      const url = editingCatId ? `/api/categories/${editingCatId}` : '/api/categories';
+      const method = editingCatId ? 'PUT' : 'POST';
+      const res = await fetch(url, {
+        method,
+        headers: getAuthHeaders(),
+        body: JSON.stringify(catFormData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsCatModalOpen(false);
+        setEditingCatId(null);
+        setCatFormData({ name: '', description: '', image: '', order: 0 });
+        fetchCategories();
+      } else {
+        alert(data.message || 'Error saving category');
+      }
+    } catch (err) {
+      alert('Error saving category: ' + err.message);
+    }
+  };
+
+  const handleEditCategory = (cat) => {
+    setEditingCatId(cat._id);
+    setCatFormData({
+      name: cat.name || '',
+      description: cat.description || '',
+      image: cat.image || '',
+      order: cat.order || 0
+    });
+    setIsCatModalOpen(true);
+  };
+
+  const handleDeleteCategory = async (id, name) => {
+    if (!window.confirm(`Delete category "${name}"? Products in this category will remain intact.`)) return;
+    try {
+      const res = await fetch(`/api/categories/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchCategories();
+      } else {
+        alert(data.message || 'Failed to delete category');
+      }
+    } catch (err) {
+      alert('Error deleting category: ' + err.message);
+    }
+  };
+
   // Product Actions
   const handleSaveProduct = async (e) => {
     e.preventDefault();
     try {
-      const imagesArr = typeof productFormData.images === 'string'
-        ? productFormData.images.split(',').map(s => s.trim()).filter(Boolean)
-        : productFormData.images;
+      const imagesArr = Array.isArray(productFormData.images)
+        ? productFormData.images
+        : (typeof productFormData.images === 'string'
+            ? productFormData.images.split(',').map(s => s.trim()).filter(Boolean)
+            : []);
 
       const payload = {
         ...productFormData,
@@ -264,6 +365,21 @@ const AdminDashboardPage = () => {
       if (data.success) {
         setIsProductModalOpen(false);
         setEditingProduct(null);
+        setProductFormData({
+          name: '',
+          category: categories[0]?._id || '',
+          price: '',
+          discountedPrice: '',
+          description: '',
+          shortDescription: '',
+          images: [],
+          stockQuantity: 15,
+          isFeatured: false,
+          isNewArrival: false,
+          isBestSeller: false,
+          materials: '',
+          careInstructions: ''
+        });
         fetchProducts();
       } else {
         alert(data.message);
@@ -818,7 +934,7 @@ const AdminDashboardPage = () => {
                     discountedPrice: '',
                     description: '',
                     shortDescription: '',
-                    images: '',
+                    images: [],
                     stockQuantity: 15,
                     isFeatured: false,
                     isNewArrival: false,
@@ -891,7 +1007,7 @@ const AdminDashboardPage = () => {
                                 discountedPrice: p.discountedPrice || '',
                                 description: p.description,
                                 shortDescription: p.shortDescription || '',
-                                images: p.images?.join(', ') || '',
+                                images: Array.isArray(p.images) ? p.images : (p.images ? [p.images] : []),
                                 stockQuantity: p.stockQuantity,
                                 isFeatured: p.isFeatured,
                                 isNewArrival: p.isNewArrival,
@@ -926,10 +1042,11 @@ const AdminDashboardPage = () => {
         {activeTab === 'categories' && (
           <div>
             <div className="admin-filter-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>Organize your store collections and promotional tiles.</p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>Organize your boutique collections and promotional category tiles.</p>
               <button
                 onClick={() => {
-                  setCatFormData({ name: '', description: '', image: '' });
+                  setEditingCatId(null);
+                  setCatFormData({ name: '', description: '', image: '', order: categories.length + 1 });
                   setIsCatModalOpen(true);
                 }}
                 className="btn-primary"
@@ -940,20 +1057,75 @@ const AdminDashboardPage = () => {
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
-              {categories.map(cat => (
-                <div key={cat._id} style={{ background: '#fff', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-                  <img src={cat.image} alt={cat.name} style={{ width: '100%', height: '140px', objectFit: 'cover' }} />
-                  <div style={{ padding: '16px' }}>
-                    <h3 style={{ fontSize: '1.1rem', marginBottom: '4px' }}>{cat.name}</h3>
-                    <p style={{ color: '#666', fontSize: '0.8rem', lineHeight: '1.4', marginBottom: '10px' }}>{cat.description}</p>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--primary-gold-dark)', fontWeight: 'bold' }}>
-                      {cat.productCount !== undefined ? `${cat.productCount} pieces` : ''}
-                    </span>
+            {categories.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 20px', background: '#fff', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                <Layers size={40} color="#b89742" style={{ marginBottom: '12px' }} />
+                <h3 style={{ margin: '0 0 6px' }}>No Categories Created Yet</h3>
+                <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '20px' }}>Create collections like Royal Potli Bags, Bridal Jewelry, or Silk Clutches.</p>
+                <button
+                  onClick={() => {
+                    setEditingCatId(null);
+                    setCatFormData({ name: '', description: '', image: '', order: 1 });
+                    setIsCatModalOpen(true);
+                  }}
+                  className="btn-primary"
+                  style={{ padding: '10px 22px' }}
+                >
+                  <Plus size={16} />
+                  <span>Create First Category</span>
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                {categories.map(cat => (
+                  <div key={cat._id} style={{ background: '#fff', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
+                    <div style={{ position: 'relative', height: '160px', background: '#f5f5f5' }}>
+                      <img
+                        src={cat.image || 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&q=80'}
+                        alt={cat.name}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&q=80';
+                        }}
+                      />
+                      <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '6px' }}>
+                        <button
+                          onClick={() => handleEditCategory(cat)}
+                          style={{ background: 'rgba(255,255,255,0.92)', border: 'none', borderRadius: '6px', padding: '6px 8px', cursor: 'pointer', display: 'flex', alignItems: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}
+                          title="Edit Category"
+                        >
+                          <Edit size={14} color="#111" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCategory(cat._id, cat.name)}
+                          style={{ background: 'rgba(255,255,255,0.92)', border: 'none', borderRadius: '6px', padding: '6px 8px', cursor: 'pointer', display: 'flex', alignItems: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}
+                          title="Delete Category"
+                        >
+                          <Trash2 size={14} color="#dc3545" />
+                        </button>
+                      </div>
+                    </div>
+                    <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                      <div>
+                        <h3 style={{ fontSize: '1.1rem', marginBottom: '4px' }}>{cat.name}</h3>
+                        <p style={{ color: '#666', fontSize: '0.82rem', lineHeight: '1.4', marginBottom: '12px' }}>
+                          {cat.description || 'No description provided.'}
+                        </p>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '10px', borderTop: '1px solid #f0ede6' }}>
+                        <span style={{ fontSize: '0.78rem', color: 'var(--primary-gold-dark)', fontWeight: 'bold' }}>
+                          {cat.productCount !== undefined ? `${cat.productCount} pieces` : '0 pieces'}
+                        </span>
+                        <span style={{ fontSize: '0.75rem', color: '#888' }}>
+                          Order: {cat.order || 0}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -1436,7 +1608,7 @@ const AdminDashboardPage = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div className="admin-form-grid-2">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>Stock Quantity *</label>
                   <input
@@ -1447,16 +1619,229 @@ const AdminDashboardPage = () => {
                     style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}
                   />
                 </div>
-
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>Images (Comma-separated URLs)</label>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>SKU / Identifier (Optional)</label>
                   <input
                     type="text"
-                    placeholder="https://... , https://..."
-                    value={productFormData.images}
-                    onChange={e => setProductFormData({ ...productFormData, images: e.target.value })}
+                    placeholder="e.g. QSM-BAG-001"
+                    value={productFormData.sku || ''}
+                    onChange={e => setProductFormData({ ...productFormData, sku: e.target.value })}
                     style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}
                   />
+                </div>
+              </div>
+
+              {/* Product Images Upload Dropzone & Gallery */}
+              <div style={{ border: '1px solid #ede7db', borderRadius: 'var(--radius-sm)', padding: '16px', background: '#fbf9f4' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '6px' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#111', margin: 0 }}>
+                    Product Photos ({Array.isArray(productFormData.images) ? productFormData.images.length : 0})
+                  </label>
+                  <span style={{ fontSize: '0.75rem', color: '#88723a', fontWeight: '600' }}>
+                    First photo is the storefront cover
+                  </span>
+                </div>
+
+                {/* Upload Button Box */}
+                <label
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '22px 14px',
+                    border: '2px dashed #d4af37',
+                    borderRadius: 'var(--radius-sm)',
+                    background: '#ffffff',
+                    cursor: productUploading ? 'wait' : 'pointer',
+                    transition: 'border 0.2s',
+                    textAlign: 'center'
+                  }}
+                >
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    disabled={productUploading}
+                    style={{ display: 'none' }}
+                    onChange={async (e) => {
+                      const files = e.target.files;
+                      if (!files || files.length === 0) return;
+                      try {
+                        setProductUploading(true);
+                        const urls = await uploadMultipleImageFiles(files);
+                        setProductFormData(prev => {
+                          const current = Array.isArray(prev.images)
+                            ? prev.images
+                            : (typeof prev.images === 'string' ? prev.images.split(',').map(s => s.trim()).filter(Boolean) : []);
+                          return { ...prev, images: [...current, ...urls] };
+                        });
+                      } catch (err) {
+                        alert('Upload failed: ' + err.message);
+                      } finally {
+                        setProductUploading(false);
+                      }
+                    }}
+                  />
+                  {productUploading ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#aa820a', fontWeight: 'bold' }}>
+                      <Loader2 size={24} className="spin" />
+                      <span>Uploading product photos to boutique storage...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <UploadCloud size={30} color="#b89742" style={{ marginBottom: '6px' }} />
+                      <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#111' }}>
+                        Click to Upload Product Photos
+                      </span>
+                      <span style={{ fontSize: '0.75rem', color: '#777', marginTop: '3px' }}>
+                        Select one or multiple photos from your device (JPG, PNG, WEBP up to 5MB each)
+                      </span>
+                    </>
+                  )}
+                </label>
+
+                {/* Interactive Thumbnails Gallery */}
+                {Array.isArray(productFormData.images) && productFormData.images.length > 0 && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))', gap: '10px', marginTop: '14px' }}>
+                    {productFormData.images.map((imgUrl, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          position: 'relative',
+                          height: '92px',
+                          borderRadius: '8px',
+                          overflow: 'hidden',
+                          border: idx === 0 ? '2px solid #b89742' : '1px solid #ddd',
+                          background: '#fff',
+                          boxShadow: idx === 0 ? '0 2px 8px rgba(184, 151, 66, 0.3)' : 'none'
+                        }}
+                      >
+                        <img
+                          src={imgUrl}
+                          alt={`Product thumbnail ${idx + 1}`}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&q=80';
+                          }}
+                        />
+                        {/* Cover Indicator / Set Cover Button */}
+                        {idx === 0 ? (
+                          <span
+                            style={{
+                              position: 'absolute',
+                              bottom: '4px',
+                              left: '4px',
+                              background: '#b89742',
+                              color: '#fff',
+                              fontSize: '0.62rem',
+                              fontWeight: 'bold',
+                              padding: '1px 5px',
+                              borderRadius: '4px',
+                              letterSpacing: '0.5px'
+                            }}
+                          >
+                            COVER
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            title="Make Main Cover Photo"
+                            onClick={() => {
+                              setProductFormData(prev => {
+                                const arr = [...prev.images];
+                                const [selected] = arr.splice(idx, 1);
+                                return { ...prev, images: [selected, ...arr] };
+                              });
+                            }}
+                            style={{
+                              position: 'absolute',
+                              bottom: '4px',
+                              left: '4px',
+                              background: 'rgba(0,0,0,0.7)',
+                              color: '#fff',
+                              fontSize: '0.6rem',
+                              padding: '2px 5px',
+                              borderRadius: '3px',
+                              border: 'none',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Set Cover
+                          </button>
+                        )}
+                        {/* Delete Thumbnail Button */}
+                        <button
+                          type="button"
+                          title="Remove Photo"
+                          onClick={() => {
+                            setProductFormData(prev => ({
+                              ...prev,
+                              images: prev.images.filter((_, i) => i !== idx)
+                            }));
+                          }}
+                          style={{
+                            position: 'absolute',
+                            top: '4px',
+                            right: '4px',
+                            background: 'rgba(220, 53, 69, 0.9)',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '50%',
+                            width: '22px',
+                            height: '22px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Optional manual URL toggle */}
+                <div style={{ marginTop: '12px', textAlign: 'right' }}>
+                  {!showManualUrlInput ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowManualUrlInput(true)}
+                      style={{ background: 'none', border: 'none', color: '#88723a', fontSize: '0.78rem', cursor: 'pointer', textDecoration: 'underline' }}
+                    >
+                      + Or add image via URL link
+                    </button>
+                  ) : (
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                      <input
+                        type="url"
+                        placeholder="Paste image URL (https://...)"
+                        value={manualImageUrl}
+                        onChange={(e) => setManualImageUrl(e.target.value)}
+                        style={{ flex: 1, padding: '7px 10px', fontSize: '0.82rem', borderRadius: '4px', border: '1px solid #ccc' }}
+                      />
+                      <button
+                        type="button"
+                        className="btn-outline"
+                        style={{ padding: '6px 12px', fontSize: '0.78rem' }}
+                        onClick={() => {
+                          if (manualImageUrl.trim()) {
+                            setProductFormData(prev => {
+                              const curr = Array.isArray(prev.images) ? prev.images : [];
+                              return { ...prev, images: [...curr, manualImageUrl.trim()] };
+                            });
+                            setManualImageUrl('');
+                            setShowManualUrlInput(false);
+                          }
+                        }}
+                      >
+                        Add URL
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1563,33 +1948,99 @@ const AdminDashboardPage = () => {
                 />
               </div>
 
+              {/* Hero Banner Image Upload Dropzone */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>
-                  Image URL *
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '6px' }}>
+                  Hero Banner Photograph *
                 </label>
-                <input
-                  type="url"
-                  value={bannerFormData.image}
-                  onChange={(e) => setBannerFormData({ ...bannerFormData, image: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
-                  required
-                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}
-                />
-              </div>
 
-              {bannerFormData.image && (
-                <div style={{ borderRadius: 'var(--radius-sm)', overflow: 'hidden', height: '140px', border: '1px solid #eee' }}>
-                  <img
-                    src={bannerFormData.image}
-                    alt="Preview"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&q=80';
+                {bannerFormData.image ? (
+                  <div style={{ position: 'relative', borderRadius: 'var(--radius-sm)', overflow: 'hidden', height: '160px', border: '1px solid #ddd' }}>
+                    <img
+                      src={bannerFormData.image}
+                      alt="Hero Banner Preview"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&q=80';
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setBannerFormData({ ...bannerFormData, image: '' })}
+                      style={{
+                        position: 'absolute',
+                        top: '8px',
+                        right: '8px',
+                        background: 'rgba(0,0,0,0.7)',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '28px',
+                        height: '28px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                      title="Remove / Change Image"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <label
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '28px 16px',
+                      border: '2px dashed #d4af37',
+                      borderRadius: 'var(--radius-sm)',
+                      background: '#fbf9f4',
+                      cursor: bannerUploading ? 'wait' : 'pointer',
+                      textAlign: 'center'
                     }}
-                  />
-                </div>
-              )}
+                  >
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      disabled={bannerUploading}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        try {
+                          setBannerUploading(true);
+                          const url = await uploadImageFile(file);
+                          setBannerFormData(prev => ({ ...prev, image: url }));
+                        } catch (err) {
+                          alert('Upload failed: ' + err.message);
+                        } finally {
+                          setBannerUploading(false);
+                        }
+                      }}
+                    />
+                    {bannerUploading ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#aa820a', fontWeight: 'bold' }}>
+                        <Loader2 size={24} className="spin" />
+                        <span>Uploading high-resolution banner...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <UploadCloud size={32} color="#b89742" style={{ marginBottom: '8px' }} />
+                        <span style={{ fontSize: '0.92rem', fontWeight: 'bold', color: '#111' }}>
+                          Click to Upload Hero Banner Photograph
+                        </span>
+                        <span style={{ fontSize: '0.75rem', color: '#777', marginTop: '4px' }}>
+                          Landscape ratio (1920x800 recommended), JPG, PNG, WEBP up to 5MB
+                        </span>
+                      </>
+                    )}
+                  </label>
+                )}
+              </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
                 <div>
@@ -1622,8 +2073,186 @@ const AdminDashboardPage = () => {
                 <button type="button" onClick={() => setIsBannerModalOpen(false)} className="btn-outline">
                   Cancel
                 </button>
-                <button type="submit" className="btn-primary">
+                <button type="submit" className="btn-primary" disabled={bannerUploading || !bannerFormData.image}>
                   Save Banner
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Category Modal (Add / Edit) */}
+      {isCatModalOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 125, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div className="admin-modal-card" style={{ background: '#fff', padding: '28px', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+              <h3 style={{ margin: 0, fontSize: '1.25rem', fontFamily: 'var(--font-heading)' }}>
+                {editingCatId ? 'Edit Boutique Category' : 'Add New Category'}
+              </h3>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsCatModalOpen(false);
+                  setEditingCatId(null);
+                }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#777' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCategory} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>
+                  Category Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Royal Potli Bags, Bridal Jewelry, Silk Clutches"
+                  value={catFormData.name}
+                  onChange={(e) => setCatFormData({ ...catFormData, name: e.target.value })}
+                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>
+                  Description (Tagline)
+                </label>
+                <textarea
+                  rows="2"
+                  placeholder="Short artisanal description for category headers"
+                  value={catFormData.description}
+                  onChange={(e) => setCatFormData({ ...catFormData, description: e.target.value })}
+                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', resize: 'vertical' }}
+                />
+              </div>
+
+              {/* Category Cover Image Upload */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '6px' }}>
+                  Category Cover Image
+                </label>
+
+                {catFormData.image ? (
+                  <div style={{ position: 'relative', borderRadius: 'var(--radius-sm)', overflow: 'hidden', height: '160px', border: '1px solid #ddd' }}>
+                    <img
+                      src={catFormData.image}
+                      alt="Category Preview"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&q=80';
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setCatFormData({ ...catFormData, image: '' })}
+                      style={{
+                        position: 'absolute',
+                        top: '8px',
+                        right: '8px',
+                        background: 'rgba(0,0,0,0.7)',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '28px',
+                        height: '28px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                      title="Remove / Change Image"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <label
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '24px 16px',
+                      border: '2px dashed #d4af37',
+                      borderRadius: 'var(--radius-sm)',
+                      background: '#fbf9f4',
+                      cursor: catUploading ? 'wait' : 'pointer',
+                      textAlign: 'center'
+                    }}
+                  >
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      disabled={catUploading}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        try {
+                          setCatUploading(true);
+                          const url = await uploadImageFile(file);
+                          setCatFormData(prev => ({ ...prev, image: url }));
+                        } catch (err) {
+                          alert('Upload failed: ' + err.message);
+                        } finally {
+                          setCatUploading(false);
+                        }
+                      }}
+                    />
+                    {catUploading ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#aa820a', fontWeight: 'bold' }}>
+                        <Loader2 size={24} className="spin" />
+                        <span>Uploading category image...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <UploadCloud size={30} color="#b89742" style={{ marginBottom: '6px' }} />
+                        <span style={{ fontSize: '0.88rem', fontWeight: 'bold', color: '#111' }}>
+                          Click to Upload Category Image
+                        </span>
+                        <span style={{ fontSize: '0.75rem', color: '#777', marginTop: '2px' }}>
+                          JPG, PNG, WEBP up to 5MB
+                        </span>
+                      </>
+                    )}
+                  </label>
+                )}
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>
+                  Display Order
+                </label>
+                <input
+                  type="number"
+                  value={catFormData.order || 0}
+                  onChange={(e) => setCatFormData({ ...catFormData, order: Number(e.target.value) || 0 })}
+                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCatModalOpen(false);
+                    setEditingCatId(null);
+                  }}
+                  className="btn-outline"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={catUploading}
+                >
+                  {editingCatId ? 'Update Category' : 'Save Category'}
                 </button>
               </div>
             </form>

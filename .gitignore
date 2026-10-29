@@ -18,6 +18,8 @@ build/
 # Uploaded customer/product media
 server/uploads/*
 !server/uploads/.gitkeep
+server/public/uploads/*
+!server/public/uploads/.gitkeep
 
 # System & Editor files
 .DS_Store
