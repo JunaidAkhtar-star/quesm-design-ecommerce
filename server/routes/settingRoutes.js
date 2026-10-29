@@ -8,6 +8,7 @@ const {
 const { protectAdmin } = require('../middleware/auth');
 
 // Public settings
+router.get('/', getPublicSettings);
 router.get('/public', getPublicSettings);
 
 // Admin settings
