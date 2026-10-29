@@ -333,23 +333,17 @@ const sendCustomerOrderEmail = async (order) => {
       `QueS.M design • Handcrafted Luxury Boutique`
     ].filter(Boolean).join('\n');
 
-    if (transporter) {
-      const info = await transporter.sendMail({
-        from: process.env.FROM_EMAIL || `"QueS.M design" <${storeEmail}>`,
-        to: order.customer.email,
-        replyTo: storeEmail,
-        subject: `Order Confirmation #${order.orderNumber} | QueS.M design`,
-        text: plainText,
-        html,
-        headers: {
-          'X-Entity-Ref-ID': order.orderNumber,
-          'X-Auto-Response-Suppress': 'All'
-        }
-      });
-      console.log(`[Email] Customer order confirmation sent to ${order.customer.email} (Order #${order.orderNumber}, MsgId: ${info.messageId})`);
-    } else {
-      console.log(`[Email Simulated] Order confirmation ready for ${order.customer.email} (Order #${order.orderNumber}, Total: ₹${order.totalAmount})`);
-    }
+        await dispatchEmail({
+      to: order.customer.email,
+      replyTo: storeEmail,
+      subject: `Order Confirmation #${order.orderNumber} | QueS.M design`,
+      text: plainText,
+      html,
+      headers: {
+        'X-Entity-Ref-ID': order.orderNumber,
+        'X-Auto-Response-Suppress': 'All'
+      }
+    });
   } catch (err) {
     console.warn('[Email Warning] Could not send customer order confirmation email:', err.message);
   }
@@ -372,16 +366,13 @@ const sendAdminNewOrderEmail = async (order) => {
       </div>
     `;
 
-    if (transporter) {
-      await transporter.sendMail({
-        from: process.env.FROM_EMAIL || '"QueS.M design Store" <contactquesmdesign@gmail.com>',
-        to: adminEmail,
-        subject: `[New Order] #${order.orderNumber} - ₹${order.totalAmount} from ${order.customer.name}`,
-        html
-      });
-    } else {
-      console.log(`[Email Simulated] Owner notified of new Order #${order.orderNumber} (₹${order.totalAmount})`);
-    }
+        await dispatchEmail({
+      to: adminEmail,
+      replyTo: order.customer?.email || storeEmail,
+      subject: `[New Order] #${order.orderNumber} - ₹${order.totalAmount} from ${order.customer.name}`,
+      html,
+      text: `New order #${order.orderNumber} received from ${order.customer.name} (₹${order.totalAmount})`
+    });
   } catch (err) {
     console.warn('[Email Warning] Could not send admin notification:', err.message);
   }
@@ -404,16 +395,12 @@ const sendAdminLoginAlert = async ({ email, ip, userAgent, time }) => {
       </div>
     `;
 
-    if (transporter) {
-      await transporter.sendMail({
-        from: process.env.FROM_EMAIL || '"QueS.M Security" <contactquesmdesign@gmail.com>',
-        to: email,
-        subject: `[Security Alert] QueS.M Admin Login from ${ip}`,
-        html
-      });
-    } else {
-      console.log(`[Security Alert Simulated] Admin login alert for ${email} from ${ip}`);
-    }
+        await dispatchEmail({
+      to: email,
+      subject: `[Security Alert] QueS.M Admin Login from ${ip}`,
+      html,
+      text: `Security Alert: New login from IP ${ip} at ${new Date(time).toLocaleString()}`
+    });
   } catch (err) {
     console.warn('[Email Warning] Could not send login alert:', err.message);
   }
@@ -510,21 +497,17 @@ const sendCustomerOrderStatusEmail = async (order, status, trackingCourier, trac
       `QueS.M design • Handcrafted Luxury Boutique`
     ].filter(Boolean).join('\n');
 
-    if (transporter) {
-      await transporter.sendMail({
-        from: process.env.FROM_EMAIL || `"QueS.M design" <${storeEmail}>`,
-        to: order.customer.email,
-        replyTo: storeEmail,
-        subject: `Order Update #${order.orderNumber}: ${status} | QueS.M design`,
-        text: plainText,
-        html,
-        headers: {
-          'X-Entity-Ref-ID': order.orderNumber,
-          'X-Auto-Response-Suppress': 'All'
-        }
-      });
-      console.log(`[Email] Order status update (${status}) sent to ${order.customer.email}`);
-    }
+        await dispatchEmail({
+      to: order.customer.email,
+      replyTo: storeEmail,
+      subject: `Order Update #${order.orderNumber}: ${status} | QueS.M design`,
+      text: plainText,
+      html,
+      headers: {
+        'X-Entity-Ref-ID': order.orderNumber,
+        'X-Auto-Response-Suppress': 'All'
+      }
+    });
   } catch (err) {
     console.warn('[Email Warning] Could not send status update email:', err.message);
   }
