@@ -24,7 +24,7 @@ const SettingSchema = new mongoose.Schema(
     },
     storeAddress: {
       type: String,
-      default: 'QueS.M design Studio, Boutique Lane, Arts & Crafts District, India'
+      default: 'QueS.M design Studio Khan Manzil, Odisha, India'
     },
     announcementBarText: {
       type: String,
@@ -55,7 +55,7 @@ const SettingSchema = new mongoose.Schema(
       default: 49
     },
     socialLinks: {
-      instagram: { type: String, default: 'https://instagram.com/quesmdesign' },
+      instagram: { type: String, default: 'https://www.instagram.com/ques.m_dgn91?xtok=MW83eHF4ejYxcWlm' },
       facebook: { type: String, default: 'https://facebook.com/quesmdesign' },
       youtube: { type: String, default: 'https://youtube.com/@quesmdesign' },
       whatsapp: { type: String, default: 'https://wa.me/917978201960' }

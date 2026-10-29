@@ -46,7 +46,7 @@ const seedDB = async () => {
       storeEmail: 'contactquesmdesign@gmail.com',
       storePhone: process.env.STORE_PHONE || '+917978201960',
       whatsappNumber: process.env.WHATSAPP_NUMBER || '917978201960',
-      storeAddress: 'QueS.M design Studio, Boutique Lane, Arts & Crafts Enclave, India',
+      storeAddress: 'QueS.M design Studio Khan Manzil, Odisha, India',
       announcementBarText: '✨ Special Festive Offer: Free Express Shipping above ₹799! Use code WELCOME10 for 10% off',
       announcementBarActive: true,
       currency: 'INR',
@@ -55,7 +55,7 @@ const seedDB = async () => {
       freeShippingThreshold: 799,
       giftWrapCharge: 49,
       socialLinks: {
-        instagram: 'https://instagram.com/quesmdesign',
+        instagram: 'https://www.instagram.com/ques.m_dgn91?xtok=MW83eHF4ejYxcWlm',
         facebook: 'https://facebook.com/quesmdesign',
         youtube: 'https://youtube.com/@quesmdesign',
         whatsapp: 'https://wa.me/917978201960'

@@ -578,6 +578,34 @@ const AdminDashboardPage = () => {
         </div>
       </header>
 
+      {/* Mobile Quick Horizontal Tab Strip */}
+      <nav className="admin-mobile-tabs-strip">
+        {[
+          { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
+          { id: 'orders', label: 'Orders', icon: ShoppingBag },
+          { id: 'products', label: 'Products', icon: Package },
+          { id: 'categories', label: 'Categories', icon: Layers },
+          { id: 'banners', label: 'Banners', icon: Image },
+          { id: 'reviews', label: 'Reviews', icon: Star },
+          { id: 'messages', label: 'Inquiries', icon: MessageSquare },
+          { id: 'settings', label: 'Settings', icon: Settings },
+          { id: 'activity', label: 'Logs', icon: ShieldAlert }
+        ].map(item => {
+          const Icon = item.icon;
+          const isActive = activeTab === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => handleTabSelect(item.id)}
+              className={`mobile-tab-pill ${isActive ? 'active' : ''}`}
+            >
+              <Icon size={13} />
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+
       {/* Backdrop overlay for mobile drawer */}
       {isMobileSidebarOpen && (
         <div className="admin-drawer-backdrop" onClick={() => setIsMobileSidebarOpen(false)} />
@@ -839,7 +867,7 @@ const AdminDashboardPage = () => {
               <div className="admin-swipe-hint">
                 <span>👉 Swipe horizontally to view full order details, customer phone, items & actions</span>
               </div>
-              <table style={{ width: '100%', minWidth: '820px', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+              <table className="admin-table-sticky-first" style={{ width: '100%', minWidth: '820px', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
                 <thead>
                   <tr style={{ background: '#f5f0e6', borderBottom: '2px solid var(--primary-gold)', textAlign: 'left' }}>
                     <th style={{ padding: '14px 16px' }}>Order ID</th>
@@ -956,7 +984,7 @@ const AdminDashboardPage = () => {
               <div className="admin-swipe-hint">
                 <span>👉 Swipe horizontally to view stock inventory, flags & edit actions</span>
               </div>
-              <table style={{ width: '100%', minWidth: '780px', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+              <table className="admin-table-sticky-first" style={{ width: '100%', minWidth: '780px', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
                 <thead>
                   <tr style={{ background: '#f5f0e6', borderBottom: '2px solid var(--primary-gold)', textAlign: 'left' }}>
                     <th style={{ padding: '12px 16px' }}>Image</th>
@@ -1384,6 +1412,52 @@ const AdminDashboardPage = () => {
               </div>
 
               <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>
+                  Studio Physical Address (Shown on Storefront & Invoices)
+                </label>
+                <input
+                  type="text"
+                  value={storeSettings.storeAddress || ''}
+                  onChange={e => setStoreSettings({ ...storeSettings, storeAddress: e.target.value })}
+                  placeholder="QueS.M design Studio Khan Manzil, Odisha, India"
+                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}
+                />
+              </div>
+
+              <div className="admin-form-grid-2">
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>
+                    Instagram Profile Link
+                  </label>
+                  <input
+                    type="url"
+                    value={storeSettings.socialLinks?.instagram || ''}
+                    onChange={e => setStoreSettings({
+                      ...storeSettings,
+                      socialLinks: { ...(storeSettings.socialLinks || {}), instagram: e.target.value }
+                    })}
+                    placeholder="https://www.instagram.com/ques.m_dgn91?xtok=MW83eHF4ejYxcWlm"
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>
+                    WhatsApp Chat URL
+                  </label>
+                  <input
+                    type="url"
+                    value={storeSettings.socialLinks?.whatsapp || ''}
+                    onChange={e => setStoreSettings({
+                      ...storeSettings,
+                      socialLinks: { ...(storeSettings.socialLinks || {}), whatsapp: e.target.value }
+                    })}
+                    placeholder="https://wa.me/917978201960"
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>Announcement Banner Bar Text</label>
                 <input
                   type="text"
@@ -1488,81 +1562,104 @@ const AdminDashboardPage = () => {
 
       {/* Update Order Status Modal */}
       {statusUpdateModalOrder && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 125, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div className="admin-modal-card" style={{ background: '#fff', padding: '28px', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '440px', maxHeight: '90vh', overflowY: 'auto' }}>
-            <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-heading)', marginBottom: '16px' }}>
-              Update Order #{statusUpdateModalOrder.orderNumber}
-            </h3>
+        <div className="admin-modal-overlay" onClick={() => setStatusUpdateModalOrder(null)}>
+          <div className="admin-modal-card" style={{ maxWidth: '460px' }} onClick={e => e.stopPropagation()}>
+            <div className="admin-modal-header">
+              <h3 style={{ margin: 0, fontSize: '1.2rem', fontFamily: 'var(--font-heading)' }}>
+                Update Order #{statusUpdateModalOrder.orderNumber}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setStatusUpdateModalOrder(null)}
+                className="admin-modal-close-btn"
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
 
-            <form onSubmit={handleUpdateOrderStatus} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>Order Status</label>
-                <select
-                  value={newStatus}
-                  onChange={e => setNewStatus(e.target.value)}
-                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', background: '#fff' }}
-                >
-                  <option value="Placed">Placed</option>
-                  <option value="Confirmed">Confirmed</option>
-                  <option value="Packed">Packed</option>
-                  <option value="Shipped">Shipped</option>
-                  <option value="Delivered">Delivered</option>
-                  <option value="Cancelled">Cancelled</option>
-                  <option value="Returned">Returned</option>
-                </select>
-              </div>
+            <div className="admin-modal-body">
+              <form onSubmit={handleUpdateOrderStatus} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>Order Status</label>
+                  <select
+                    value={newStatus}
+                    onChange={e => setNewStatus(e.target.value)}
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', background: '#fff' }}
+                  >
+                    <option value="Placed">Placed</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Packed">Packed</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
+                    <option value="Returned">Returned</option>
+                  </select>
+                </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>Tracking Number / AWB</label>
-                <input
-                  type="text"
-                  placeholder="e.g. DELH12345678"
-                  value={trackingNumber}
-                  onChange={e => setTrackingNumber(e.target.value)}
-                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}
-                />
-              </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>Tracking Number / AWB</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. DELH12345678"
+                    value={trackingNumber}
+                    onChange={e => setTrackingNumber(e.target.value)}
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}
+                  />
+                </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>Courier Partner</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Delhivery, Speed Post, Bluedart"
-                  value={trackingCourier}
-                  onChange={e => setTrackingCourier(e.target.value)}
-                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}
-                />
-              </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>Courier Partner</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Delhivery, Speed Post, Bluedart"
+                    value={trackingCourier}
+                    onChange={e => setTrackingCourier(e.target.value)}
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}
+                  />
+                </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>Status Note (timeline update)</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Package handed over to courier"
-                  value={statusNote}
-                  onChange={e => setStatusNote(e.target.value)}
-                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}
-                />
-              </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>Status Note (timeline update)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Package handed over to courier"
+                    value={statusNote}
+                    onChange={e => setStatusNote(e.target.value)}
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}
+                  />
+                </div>
 
-              <div style={{ display: 'flex', gap: '10px', marginTop: '10px', justifyContent: 'flex-end' }}>
-                <button type="button" onClick={() => setStatusUpdateModalOrder(null)} className="btn-outline">Cancel</button>
-                <button type="submit" className="btn-primary">Update Order</button>
-              </div>
-            </form>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '10px', justifyContent: 'flex-end' }}>
+                  <button type="button" onClick={() => setStatusUpdateModalOrder(null)} className="btn-outline">Cancel</button>
+                  <button type="submit" className="btn-primary">Update Order</button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
 
       {/* Add / Edit Product Modal */}
       {isProductModalOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 125, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div className="admin-modal-card" style={{ background: '#fff', padding: '30px', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto' }}>
-            <h3 style={{ fontSize: '1.3rem', fontFamily: 'var(--font-heading)', marginBottom: '16px' }}>
-              {editingProduct ? 'Edit Product' : 'Add Handcrafted Product'}
-            </h3>
+        <div className="admin-modal-overlay" onClick={() => setIsProductModalOpen(false)}>
+          <div className="admin-modal-card" style={{ maxWidth: '660px' }} onClick={e => e.stopPropagation()}>
+            <div className="admin-modal-header">
+              <h3 style={{ margin: 0, fontSize: '1.25rem', fontFamily: 'var(--font-heading)' }}>
+                {editingProduct ? 'Edit Product' : 'Add Handcrafted Product'}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsProductModalOpen(false)}
+                className="admin-modal-close-btn"
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
 
-            <form onSubmit={handleSaveProduct} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div className="admin-modal-body">
+              <form onSubmit={handleSaveProduct} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>Product Name *</label>
                 <input
@@ -1893,19 +1990,26 @@ const AdminDashboardPage = () => {
             </form>
           </div>
         </div>
-      )}
+      </div>
+    )}
       {/* Add Hero Banner Modal */}
       {isBannerModalOpen && (
-        <div className="modal-backdrop">
-          <div className="modal-content admin-modal-card" style={{ maxWidth: '580px', maxHeight: '90vh', overflowY: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h2 style={{ fontSize: '1.3rem', fontFamily: 'var(--font-heading)' }}>Add Hero Banner</h2>
-              <button onClick={() => setIsBannerModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                <X size={20} />
+        <div className="admin-modal-overlay" onClick={() => setIsBannerModalOpen(false)}>
+          <div className="admin-modal-card" style={{ maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
+            <div className="admin-modal-header">
+              <h2 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-heading)', margin: 0 }}>Add Hero Banner</h2>
+              <button
+                type="button"
+                onClick={() => setIsBannerModalOpen(false)}
+                className="admin-modal-close-btn"
+                aria-label="Close"
+              >
+                <X size={18} />
               </button>
             </div>
 
-            <form onSubmit={handleSaveBanner} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div className="admin-modal-body">
+              <form onSubmit={handleSaveBanner} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>
                   Badge Text
@@ -2080,13 +2184,20 @@ const AdminDashboardPage = () => {
             </form>
           </div>
         </div>
-      )}
+      </div>
+    )}
 
       {/* Category Modal (Add / Edit) */}
       {isCatModalOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 125, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div className="admin-modal-card" style={{ background: '#fff', padding: '28px', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+        <div
+          className="admin-modal-overlay"
+          onClick={() => {
+            setIsCatModalOpen(false);
+            setEditingCatId(null);
+          }}
+        >
+          <div className="admin-modal-card" style={{ maxWidth: '540px' }} onClick={e => e.stopPropagation()}>
+            <div className="admin-modal-header">
               <h3 style={{ margin: 0, fontSize: '1.25rem', fontFamily: 'var(--font-heading)' }}>
                 {editingCatId ? 'Edit Boutique Category' : 'Add New Category'}
               </h3>
@@ -2096,13 +2207,15 @@ const AdminDashboardPage = () => {
                   setIsCatModalOpen(false);
                   setEditingCatId(null);
                 }}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#777' }}
+                className="admin-modal-close-btn"
+                aria-label="Close"
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
 
-            <form onSubmit={handleSaveCategory} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className="admin-modal-body">
+              <form onSubmit={handleSaveCategory} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>
                   Category Name *
@@ -2258,7 +2371,8 @@ const AdminDashboardPage = () => {
             </form>
           </div>
         </div>
-      )}
+      </div>
+    )}
     </div>
   );
 };

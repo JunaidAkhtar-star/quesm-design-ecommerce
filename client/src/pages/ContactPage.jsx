@@ -165,7 +165,7 @@ const ContactPage = () => {
           >
             <MapPin size={28} className="gold-text" style={{ marginBottom: '8px' }} />
             <h4 style={{ fontSize: '1rem', marginBottom: '4px' }}>Boutique Artisan Studio</h4>
-            <p style={{ fontSize: '0.82rem', color: '#777' }}>Boutique Lane, Arts & Crafts Enclave, India</p>
+            <p style={{ fontSize: '0.82rem', color: '#777' }}>{settings.storeAddress || 'QueS.M design Studio Khan Manzil, Odisha, India'}</p>
           </div>
         </div>
 

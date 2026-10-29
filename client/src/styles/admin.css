@@ -1,5 +1,5 @@
 /* ==========================================================================
-   QueS.M design - Owner Administration Panel Responsive Stylesheet
+   QueS.M design - Luxury Boutique Owner Administration Panel Responsive Stylesheet
    ========================================================================== */
 
 /* Main Layout Wrapper */
@@ -9,6 +9,9 @@
   background: #f5f4ef;
   position: relative;
   width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 /* Mobile Sticky Header Bar (Hidden on desktop >= 1024px) */
@@ -22,7 +25,7 @@
   border-bottom: 1px solid rgba(212, 175, 55, 0.25);
   position: sticky;
   top: 0;
-  z-index: 120;
+  z-index: 220;
 }
 
 .admin-mobile-header .brand-wrap {
@@ -36,6 +39,7 @@
   font-size: 1.1rem;
   color: #f7e7b4;
   margin: 0;
+  white-space: nowrap;
 }
 
 .admin-mobile-header .toggle-btn {
@@ -48,9 +52,60 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  min-width: 38px;
+  min-height: 38px;
 }
 
-/* Sidebar */
+/* Mobile Quick-Tab Horizontal Scroll Strip (Below Mobile Header on < 1024px) */
+.admin-mobile-tabs-strip {
+  display: none;
+  background: #141418;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  gap: 8px;
+  position: sticky;
+  top: 59px;
+  z-index: 215;
+}
+
+.admin-mobile-tabs-strip::-webkit-scrollbar {
+  height: 3px;
+}
+
+.admin-mobile-tabs-strip::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.3);
+  border-radius: 4px;
+}
+
+.mobile-tab-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #a09d94;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.mobile-tab-pill.active {
+  background: var(--primary-gold, #d4af37);
+  color: #121212;
+  font-weight: 700;
+  border-color: #f7e7b4;
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.4);
+}
+
+/* Sidebar Desktop */
 .admin-sidebar {
   width: 260px;
   background: var(--luxury-black, #0f0f12);
@@ -60,7 +115,8 @@
   border-right: 1px solid rgba(212, 175, 55, 0.2);
   flex-shrink: 0;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 150;
+  z-index: 250;
+  box-sizing: border-box;
 }
 
 .admin-sidebar-header {
@@ -76,9 +132,11 @@
   background: rgba(255, 255, 255, 0.1);
   border: none;
   color: #fff;
-  padding: 6px;
+  padding: 8px;
   border-radius: 50%;
   cursor: pointer;
+  min-width: 34px;
+  min-height: 34px;
 }
 
 /* Backdrop Overlay for mobile drawer */
@@ -93,6 +151,17 @@
   overflow-y: auto;
   min-width: 0; /* Prevents overflow of flex children */
   box-sizing: border-box;
+  width: 100%;
+}
+
+/* Top Bar */
+.admin-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 /* Responsive Table Wrapper */
@@ -102,8 +171,11 @@
   border: 1px solid var(--border-color, #ede7da);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0,0,0,0.04));
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.04));
   margin-bottom: 24px;
+  position: relative;
+  width: 100%;
+  max-width: 100%;
 }
 
 .admin-table-responsive table {
@@ -111,18 +183,35 @@
   border-collapse: collapse;
 }
 
+/* Sticky first column support on horizontal table scroll */
+.admin-table-sticky-first th:first-child,
+.admin-table-sticky-first td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: #ffffff;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.04);
+}
+
+.admin-table-sticky-first thead th:first-child {
+  background: #f5f0e6;
+  z-index: 3;
+}
+
+/* Horizontal Swipe Hint Banner */
 .admin-swipe-hint {
   display: none;
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   color: #9c7820;
   background: #fdfaf0;
   padding: 8px 14px;
   border-bottom: 1px dashed #e8dec8;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  font-weight: 500;
 }
 
-/* Grids */
+/* Responsive Grids */
 .admin-kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -132,7 +221,7 @@
 
 .admin-dual-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 24px;
 }
 
@@ -150,7 +239,95 @@
   margin-bottom: 16px;
 }
 
-/* Responsive Breakpoint: Tablet & Mobile (< 1024px) */
+/* Universal Admin Modal Styles */
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: rgba(10, 10, 15, 0.72);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  animation: adminFadeIn 0.2s ease-out;
+}
+
+@keyframes adminFadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.admin-modal-card {
+  background: #ffffff;
+  border-radius: var(--radius-lg, 16px);
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  position: relative;
+  box-sizing: border-box;
+}
+
+.admin-modal-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-color, #ede7da);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fdfcf9;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.admin-modal-close-btn {
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.admin-modal-close-btn:hover {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.admin-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex-grow: 1;
+}
+
+.admin-modal-footer {
+  padding: 14px 24px;
+  border-top: 1px solid var(--border-color, #ede7da);
+  background: #faf8f3;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+/* Responsive Breakpoint: Tablet (< 1024px) */
 @media (max-width: 1024px) {
   .admin-layout {
     flex-direction: column;
@@ -160,16 +337,20 @@
     display: flex;
   }
 
+  .admin-mobile-tabs-strip {
+    display: flex;
+  }
+
   .admin-sidebar {
     position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
-    width: 280px;
-    max-width: 85vw;
-    z-index: 220;
+    width: 290px;
+    max-width: 86vw;
+    z-index: 300;
     transform: translateX(-100%);
-    box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
+    box-shadow: 4px 0 35px rgba(0, 0, 0, 0.6);
   }
 
   .admin-sidebar.drawer-open {
@@ -186,13 +367,14 @@
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(2px);
-    z-index: 210;
+    background: rgba(0, 0, 0, 0.68);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 290;
   }
 
   .admin-main {
-    padding: 22px 18px;
+    padding: 20px 18px;
   }
 
   .admin-swipe-hint {
@@ -205,50 +387,83 @@
   .admin-kpi-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
+    margin-bottom: 22px;
+  }
+
+  .admin-kpi-grid > div {
+    padding: 16px !important;
   }
 
   .admin-dual-grid {
     grid-template-columns: 1fr;
-    gap: 18px;
+    gap: 16px;
   }
 
   .admin-form-grid-2,
   .admin-form-grid-3 {
     grid-template-columns: 1fr;
     gap: 12px;
+    margin-bottom: 12px;
   }
 
   .admin-top-bar {
     flex-direction: column;
     align-items: flex-start !important;
-    gap: 14px;
-    margin-bottom: 22px !important;
+    gap: 12px;
+    margin-bottom: 20px !important;
   }
 
   .admin-top-bar h1 {
-    font-size: 1.5rem !important;
+    font-size: 1.45rem !important;
   }
 
   .admin-filter-bar {
     flex-direction: column;
     align-items: stretch !important;
     gap: 12px !important;
+    margin-bottom: 18px !important;
   }
 
   .admin-filter-bar > * {
     width: 100% !important;
+    max-width: 100% !important;
   }
 
   .admin-filter-bar input,
   .admin-filter-bar select {
     width: 100% !important;
     min-width: unset !important;
+    box-sizing: border-box;
+  }
+
+  .admin-modal-overlay {
+    padding: 8px;
+    align-items: flex-end; /* Bottom sheet experience on phones */
   }
 
   .admin-modal-card {
-    padding: 20px 16px !important;
-    max-height: 92vh !important;
-    width: 95% !important;
+    border-radius: 18px 18px 0 0 !important;
+    max-height: 94vh !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .admin-modal-header {
+    padding: 14px 16px !important;
+  }
+
+  .admin-modal-body {
+    padding: 16px 14px !important;
+  }
+
+  .admin-modal-footer {
+    padding: 12px 14px !important;
+    flex-direction: column-reverse;
+  }
+
+  .admin-modal-footer button {
+    width: 100%;
+    justify-content: center;
   }
 }
 
@@ -264,11 +479,23 @@
   }
 
   .admin-main {
-    padding: 16px 12px;
+    padding: 14px 10px;
+  }
+
+  .admin-mobile-header .brand-title {
+    font-size: 1rem;
+  }
+
+  .admin-mobile-tabs-strip {
+    padding: 6px 8px;
+    gap: 6px;
+  }
+
+  .mobile-tab-pill {
+    padding: 6px 11px;
+    font-size: 0.76rem;
   }
 }
-
-
 
 /* Spinner utility */
 @keyframes spin {

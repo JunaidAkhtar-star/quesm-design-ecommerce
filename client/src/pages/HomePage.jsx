@@ -8,7 +8,7 @@ import { useSettings } from '../context/SettingsContext';
 
 const HomePage = () => {
   const { t } = useLanguage();
-  const { getWhatsAppLink, formatPrice } = useSettings();
+  const { settings, getWhatsAppLink, formatPrice } = useSettings();
 
   const [banners, setBanners] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -86,7 +86,7 @@ const HomePage = () => {
           name: 'QueS.M design',
           url: 'http://localhost:5173',
           logo: 'http://localhost:5173/logo.png',
-          sameAs: ['https://instagram.com/quesmdesign']
+          sameAs: [settings?.socialLinks?.instagram || 'https://www.instagram.com/ques.m_dgn91?xtok=MW83eHF4ejYxcWlm']
         }}
       />
 
@@ -364,11 +364,30 @@ const HomePage = () => {
       {/* 7. Instagram & Social Community Strip */}
       <section className="container" style={{ padding: '40px 20px 20px', textAlign: 'center' }}>
         <div style={{ marginBottom: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: 'var(--primary-gold-dark)', fontWeight: 'bold', fontSize: '0.85rem' }}>
+          <a
+            href={settings?.socialLinks?.instagram || 'https://www.instagram.com/ques.m_dgn91?xtok=MW83eHF4ejYxcWlm'}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              color: 'var(--primary-gold-dark)',
+              fontWeight: 'bold',
+              fontSize: '0.9rem',
+              textDecoration: 'none',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              background: 'rgba(212, 175, 55, 0.1)',
+              border: '1px solid rgba(212, 175, 55, 0.25)',
+              transition: 'all 0.3s ease'
+            }}
+          >
             <Instagram size={16} />
-            <span>@quesmdesign on Instagram</span>
-          </div>
-          <h3 style={{ fontSize: '1.8rem', fontFamily: 'var(--font-heading)', marginTop: '4px' }}>
+            <span>@ques.m_dgn91 on Instagram</span>
+          </a>
+          <h3 style={{ fontSize: '1.8rem', fontFamily: 'var(--font-heading)', marginTop: '8px' }}>
             Tag #QueSMdesign To Be Featured
           </h3>
         </div>
