@@ -54,6 +54,7 @@ const WishlistPage = () => {
       </div>
 
       <div
+        className="customer-wishlist-grid"
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',

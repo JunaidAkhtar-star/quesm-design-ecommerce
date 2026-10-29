@@ -109,18 +109,18 @@ const MyOrdersPage = () => {
   };
 
   return (
-    <div className="container" style={{ padding: '40px 20px 80px', maxWidth: '880px' }}>
+    <div className="customer-dashboard-container">
       <SEOMeta
         title="My Orders"
         description="View your order history, delivery progression, and order summaries at QueS.M design."
       />
 
       {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '32px' }}>
         <span className="gold-badge" style={{ marginBottom: '10px' }}>
-          Customer Purchase History
+          Customer Order Dashboard
         </span>
-        <h1 style={{ fontSize: '2.5rem', fontFamily: 'var(--font-heading)', marginBottom: '8px' }}>
+        <h1 className="customer-header-title">
           {language === 'hi' ? 'मेरे ऑर्डर्स' : 'My Orders'}
         </h1>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', maxWidth: '540px', margin: '0 auto' }}>
@@ -129,18 +129,9 @@ const MyOrdersPage = () => {
       </div>
 
       {/* Search / Lookup Box */}
-      <div
-        style={{
-          background: '#fff',
-          borderRadius: 'var(--radius-lg)',
-          padding: '24px',
-          border: '1px solid var(--border-color)',
-          boxShadow: 'var(--shadow-sm)',
-          marginBottom: '32px'
-        }}
-      >
-        <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          <div style={{ position: 'relative', flexGrow: 1, minWidth: '240px' }}>
+      <div className="customer-lookup-card">
+        <form onSubmit={handleSearchSubmit} className="customer-lookup-form">
+          <div style={{ position: 'relative', flexGrow: 1, minWidth: '220px' }}>
             <input
               type="text"
               required
@@ -152,7 +143,8 @@ const MyOrdersPage = () => {
                 padding: '12px 14px 12px 40px',
                 borderRadius: 'var(--radius-sm)',
                 border: '1px solid var(--border-color)',
-                fontSize: '0.95rem'
+                fontSize: '0.95rem',
+                boxSizing: 'border-box'
               }}
             />
             <Search size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#888' }} />
@@ -177,7 +169,7 @@ const MyOrdersPage = () => {
 
       {/* Orders List */}
       {orders.length > 0 ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {orders.map((o) => {
             const statusStyle = getStatusColor(o.orderStatus);
             const dateStr = new Date(o.createdAt).toLocaleDateString('en-IN', {
@@ -187,41 +179,13 @@ const MyOrdersPage = () => {
             });
 
             return (
-              <div
-                key={o._id}
-                style={{
-                  background: '#fff',
-                  borderRadius: 'var(--radius-lg)',
-                  border: '1px solid var(--border-color)',
-                  boxShadow: 'var(--shadow-sm)',
-                  overflow: 'hidden',
-                  transition: 'box-shadow 0.2s ease'
-                }}
-              >
+              <div key={o._id} className="customer-order-card">
                 {/* Order Card Header */}
-                <div
-                  style={{
-                    padding: '16px 20px',
-                    background: 'var(--bg-alt)',
-                    borderBottom: '1px solid var(--border-color)',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    gap: '12px'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                    <span style={{ fontFamily: 'monospace', fontWeight: 'bold', fontSize: '1rem', color: 'var(--luxury-black)' }}>
+                <div className="customer-order-header">
+                  <div className="customer-order-header-row">
+                    <span style={{ fontFamily: 'monospace', fontWeight: 'bold', fontSize: '1.05rem', color: 'var(--luxury-black)' }}>
                       #{o.orderNumber}
                     </span>
-                    <span style={{ fontSize: '0.82rem', color: '#666', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Calendar size={13} />
-                      {dateStr}
-                    </span>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <span
                       style={{
                         background: statusStyle.bg,
@@ -235,6 +199,13 @@ const MyOrdersPage = () => {
                     >
                       {o.orderStatus}
                     </span>
+                  </div>
+
+                  <div className="customer-order-header-row" style={{ color: '#666', fontSize: '0.84rem' }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                      <Calendar size={13} />
+                      {dateStr}
+                    </span>
                     <span style={{ fontWeight: 'bold', color: 'var(--luxury-black)', fontSize: '1.05rem' }}>
                       {formatPrice(o.totalAmount)}
                     </span>
@@ -242,28 +213,28 @@ const MyOrdersPage = () => {
                 </div>
 
                 {/* Items Summary */}
-                <div style={{ padding: '20px' }}>
+                <div style={{ padding: '18px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
                     {o.items?.map((item, idx) => (
-                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <img
                           src={item.image || 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200&q=80'}
                           alt={item.name}
-                          style={{ width: '50px', height: '50px', borderRadius: 'var(--radius-sm)', objectFit: 'cover', border: '1px solid #eee' }}
+                          style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-sm)', objectFit: 'cover', border: '1px solid #eee', flexShrink: 0 }}
                           onError={(e) => {
                             e.target.onerror = null;
                             e.target.src = 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200&q=80';
                           }}
                         />
-                        <div style={{ flexGrow: 1 }}>
-                          <h4 style={{ fontSize: '0.92rem', marginBottom: '2px', color: 'var(--luxury-black)' }}>
+                        <div style={{ flexGrow: 1, minWidth: 0 }}>
+                          <h4 style={{ fontSize: '0.9rem', marginBottom: '2px', color: 'var(--luxury-black)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {item.name}
                           </h4>
-                          <span style={{ fontSize: '0.8rem', color: '#777' }}>
+                          <span style={{ fontSize: '0.78rem', color: '#777' }}>
                             Qty: {item.quantity} {item.variant ? `• ${item.variant.name}: ${item.variant.value}` : ''}
                           </span>
                         </div>
-                        <span style={{ fontSize: '0.9rem', fontWeight: '600' }}>
+                        <span style={{ fontSize: '0.88rem', fontWeight: '600', flexShrink: 0, marginLeft: '8px' }}>
                           {formatPrice(item.price * item.quantity)}
                         </span>
                       </div>
@@ -272,52 +243,43 @@ const MyOrdersPage = () => {
 
                   {/* Tracking info if dispatched */}
                   {o.trackingNumber && (
-                    <div style={{ background: '#f5f7fa', padding: '10px 14px', borderRadius: 'var(--radius-sm)', fontSize: '0.82rem', marginBottom: '16px' }}>
-                      <strong>Tracking Number:</strong> {o.trackingNumber} ({o.trackingCourier || 'Express Delivery'})
+                    <div style={{ background: '#f5f7fa', padding: '10px 14px', borderRadius: 'var(--radius-sm)', fontSize: '0.82rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <Truck size={15} color="var(--primary-gold-dark)" />
+                      <span><strong>Tracking:</strong> {o.trackingCourier || 'Express'} #{o.trackingNumber}</span>
                     </div>
                   )}
 
                   {/* Actions Row */}
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      flexWrap: 'wrap',
-                      gap: '12px',
-                      paddingTop: '16px',
-                      borderTop: '1px solid #f0f0f0'
-                    }}
-                  >
-                    <div style={{ fontSize: '0.8rem', color: '#666' }}>
+                  <div className="customer-order-actions">
+                    <div style={{ fontSize: '0.82rem', color: '#666' }}>
                       Payment: <strong>{o.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online / UPI'}</strong> ({o.paymentStatus})
                     </div>
 
-                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                    <div className="customer-actions-group">
                       <Link
                         to={`/track-order?id=${o.orderNumber}`}
                         className="btn-primary"
-                        style={{ padding: '8px 16px', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+                        style={{ padding: '8px 14px', fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                       >
                         <Truck size={14} />
-                        <span>Track Live Progress</span>
+                        <span>Track Status</span>
                       </Link>
 
                       <Link
                         to={`/order-success/${o.orderNumber}`}
                         className="btn-outline"
-                        style={{ padding: '8px 14px', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+                        style={{ padding: '8px 14px', fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                       >
                         <ExternalLink size={14} />
-                        <span>Invoice & Slip</span>
+                        <span>Invoice Slip</span>
                       </Link>
 
                       <a
                         href={getWhatsAppLink(`Hi QueS.M design! I have a question regarding my order #${o.orderNumber}.`)}
                         target="_blank"
                         rel="noreferrer"
-                        className="btn-outline"
-                        style={{ padding: '8px 14px', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '6px', color: '#25D366' }}
+                        className="btn-outline btn-whatsapp-full"
+                        style={{ padding: '8px 14px', fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#25D366' }}
                       >
                         <MessageCircle size={14} />
                         <span>WhatsApp Help</span>

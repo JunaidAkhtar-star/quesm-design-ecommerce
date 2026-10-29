@@ -29,14 +29,14 @@ const OrderSuccessPage = () => {
   }, [orderNumber]);
 
   return (
-    <div className="container" style={{ padding: '60px 20px 100px', maxWidth: '720px' }}>
+    <div className="customer-dashboard-container" style={{ maxWidth: '720px' }}>
       <SEOMeta title={`Order #${orderNumber} Confirmed`} />
 
       <div
         style={{
           background: '#fff',
           borderRadius: 'var(--radius-xl)',
-          padding: '40px 32px',
+          padding: '36px 20px',
           border: '1px solid var(--border-color)',
           boxShadow: 'var(--shadow-md)',
           textAlign: 'center'
@@ -44,51 +44,51 @@ const OrderSuccessPage = () => {
       >
         <div
           style={{
-            width: '80px',
-            height: '80px',
+            width: '74px',
+            height: '74px',
             borderRadius: '50%',
             background: 'var(--primary-gold-subtle)',
             color: 'var(--primary-gold-dark)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            margin: '0 auto 20px',
+            margin: '0 auto 16px',
             border: '2px solid rgba(212, 175, 55, 0.4)'
           }}
         >
-          <CheckCircle2 size={44} />
+          <CheckCircle2 size={40} />
         </div>
 
-        <span className="gold-badge" style={{ marginBottom: '12px' }}>Order Confirmed</span>
-        <h1 style={{ fontSize: '2.2rem', fontFamily: 'var(--font-heading)', marginBottom: '8px' }}>
+        <span className="gold-badge" style={{ marginBottom: '10px' }}>Order Confirmed</span>
+        <h1 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.2rem)', fontFamily: 'var(--font-heading)', marginBottom: '8px' }}>
           Thank You For Supporting Handmade!
         </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginBottom: '24px' }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', marginBottom: '20px' }}>
           We have received your order and our artisans are preparing your pieces with love.
         </p>
 
         {/* Order ID Badge */}
-        <div style={{ background: '#faf9f5', border: '1px dashed var(--primary-gold)', padding: '14px 20px', borderRadius: 'var(--radius-md)', display: 'inline-block', marginBottom: '32px' }}>
+        <div style={{ background: '#faf9f5', border: '1px dashed var(--primary-gold)', padding: '12px 18px', borderRadius: 'var(--radius-md)', display: 'inline-block', marginBottom: '26px' }}>
           <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Order ID:</span>{' '}
-          <strong style={{ fontSize: '1.15rem', color: 'var(--luxury-black)', letterSpacing: '0.5px' }}>{orderNumber}</strong>
+          <strong style={{ fontSize: '1.1rem', color: 'var(--luxury-black)', letterSpacing: '0.5px' }}>{orderNumber}</strong>
         </div>
 
         {order && (
-          <div style={{ textAlign: 'left', background: '#fdfcf9', padding: '24px', borderRadius: 'var(--radius-md)', border: '1px solid #ebd9b4', marginBottom: '32px' }}>
-            <h3 style={{ fontSize: '1.1rem', marginBottom: '14px', color: 'var(--luxury-black)' }}>Delivery To:</h3>
+          <div style={{ textAlign: 'left', background: '#fdfcf9', padding: '20px', borderRadius: 'var(--radius-md)', border: '1px solid #ebd9b4', marginBottom: '28px' }}>
+            <h3 style={{ fontSize: '1.05rem', marginBottom: '12px', color: 'var(--luxury-black)' }}>Delivery To:</h3>
             <p style={{ margin: '0 0 4px', fontWeight: 'bold' }}>{order.customer.name}</p>
-            <p style={{ margin: '0 0 4px', color: '#555', fontSize: '0.9rem' }}>{order.customer.address}, {order.customer.city}, {order.customer.state} - {order.customer.pincode}</p>
-            <p style={{ margin: '0 0 14px', color: '#555', fontSize: '0.9rem' }}>Phone: {order.customer.phone}</p>
+            <p style={{ margin: '0 0 4px', color: '#555', fontSize: '0.88rem' }}>{order.customer.address}, {order.customer.city}, {order.customer.state} - {order.customer.pincode}</p>
+            <p style={{ margin: '0 0 12px', color: '#555', fontSize: '0.88rem' }}>Phone: {order.customer.phone}</p>
 
-            <div style={{ borderTop: '1px dashed #d4af37', paddingTop: '14px', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
+            <div style={{ borderTop: '1px dashed #d4af37', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
               <span>Total Amount:</span>
               <span className="gold-text">{formatPrice(order.totalAmount)}</span>
             </div>
           </div>
         )}
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', justifyContent: 'center' }}>
-          <Link to={`/track-order?id=${orderNumber}`} className="btn-primary" style={{ padding: '12px 28px' }}>
+        <div className="customer-actions-group" style={{ justifyContent: 'center' }}>
+          <Link to={`/track-order?id=${orderNumber}`} className="btn-primary" style={{ padding: '12px 24px' }}>
             <Truck size={17} />
             <span>Track Order Status</span>
           </Link>
@@ -98,13 +98,13 @@ const OrderSuccessPage = () => {
             target="_blank"
             rel="noreferrer"
             className="btn-outline"
-            style={{ padding: '12px 24px' }}
+            style={{ padding: '12px 22px' }}
           >
             <MessageCircle size={17} color="#25d366" />
             <span>Ask on WhatsApp</span>
           </a>
 
-          <Link to="/shop" className="btn-dark" style={{ padding: '12px 28px' }}>
+          <Link to="/shop" className="btn-dark" style={{ padding: '12px 24px' }}>
             <span>Continue Shopping</span>
             <ArrowRight size={17} />
           </Link>
