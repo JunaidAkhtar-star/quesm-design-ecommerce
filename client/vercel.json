@@ -1,9 +1,16 @@
 {
   "rewrites": [
     {
+      "source": "/api/:match*",
+      "destination": "https://quesm-design-ecommerce.onrender.com/api/:match*"
+    },
+    {
+      "source": "/uploads/:match*",
+      "destination": "https://quesm-design-ecommerce.onrender.com/uploads/:match*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
 }
-

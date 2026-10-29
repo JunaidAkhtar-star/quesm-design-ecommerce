@@ -10,9 +10,11 @@ const Review = require('../models/Review');
 
 const seedDB = async () => {
   try {
-    const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/ques_m_design';
-    await mongoose.connect(mongoUri);
-    console.log('[Seed] Connected to MongoDB...');
+    if (mongoose.connection.readyState !== 1) {
+      const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/ques_m_design';
+      await mongoose.connect(mongoUri);
+      console.log('[Seed] Connected to MongoDB...');
+    }
 
     // Clear existing collections
     await AdminUser.deleteMany({});
@@ -803,11 +805,21 @@ const seedDB = async () => {
     console.log(`Owner Login Password: ${ownerPassword}`);
     console.log('===========================================\n');
 
-    process.exit(0);
+    if (require.main === module) {
+      process.exit(0);
+    }
   } catch (error) {
     console.error('[Seed Error]:', error);
-    process.exit(1);
+    if (require.main === module) {
+      process.exit(1);
+    } else {
+      throw error;
+    }
   }
 };
 
-seedDB();
+if (require.main === module) {
+  seedDB();
+}
+
+module.exports = { seedDB };
