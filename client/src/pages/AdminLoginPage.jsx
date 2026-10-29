@@ -15,6 +15,24 @@ const AdminLoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Strictly enforce empty inputs and clear any browser autofill cache
+  useEffect(() => {
+    setEmail('');
+    setPassword('');
+    const t1 = setTimeout(() => {
+      setEmail('');
+      setPassword('');
+    }, 50);
+    const t2 = setTimeout(() => {
+      setEmail('');
+      setPassword('');
+    }, 200);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, []);
+
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/admin/dashboard');
@@ -104,7 +122,16 @@ const AdminLoginPage = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+        <form
+          onSubmit={handleSubmit}
+          autoComplete="off"
+          autoCapitalize="none"
+          style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}
+        >
+          {/* Decoy trap inputs to capture aggressive browser autofill */}
+          <input type="text" name="fake_user_autofill_trap" style={{ display: 'none' }} tabIndex={-1} autoComplete="off" />
+          <input type="password" name="fake_pass_autofill_trap" style={{ display: 'none' }} tabIndex={-1} autoComplete="new-password" />
+
           {!requires2FA ? (
             <>
               <div>
@@ -114,8 +141,11 @@ const AdminLoginPage = () => {
                 <div style={{ position: 'relative' }}>
                   <input
                     type="text"
+                    name="studio_vault_owner_id"
                     required
-                    autoComplete="off"
+                    autoComplete="new-password"
+                    autoCapitalize="none"
+                    spellCheck="false"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="Enter USERNAME"
@@ -140,8 +170,11 @@ const AdminLoginPage = () => {
                 <div style={{ position: 'relative' }}>
                   <input
                     type="password"
+                    name="studio_vault_owner_secret"
                     required
-                    autoComplete="off"
+                    autoComplete="new-password"
+                    autoCapitalize="none"
+                    spellCheck="false"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     placeholder="Enter PASSWORD"

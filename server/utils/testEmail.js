@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const nodemailer = require('nodemailer');
 
 async function testSmtp() {
@@ -41,7 +42,9 @@ async function testSmtp() {
     const info = await transporter.sendMail({
       from: process.env.FROM_EMAIL || `"QueS.M design" <${process.env.SMTP_USER}>`,
       to: recipient,
-      subject: '✨ Test Email - QueS.M design SMTP Connected Successfully!',
+      replyTo: process.env.SMTP_USER,
+      subject: 'QueS.M design - SMTP Connection Verification Test',
+      text: 'Hello Store Owner,\n\nYour SMTP mail configuration is active and working properly!\nCustomer order confirmations, dispatch notifications, and owner alerts will now be delivered.\n\nQueS.M design E-Commerce Engine',
       html: `
         <div style="font-family: Arial, sans-serif; padding: 24px; border: 1px solid #d4af37; border-radius: 12px; max-width: 500px; margin: auto;">
           <h2 style="color: #b89742; margin-top: 0;">QueS.M design</h2>
@@ -51,7 +54,11 @@ async function testSmtp() {
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
           <small style="color: #999;">Sent from QueS.M design E-Commerce Engine</small>
         </div>
-      `
+      `,
+      headers: {
+        'X-Auto-Response-Suppress': 'All',
+        'Precedence': 'normal'
+      }
     });
 
     console.log(`🎉 Test email sent successfully! Message ID: ${info.messageId}\n`);

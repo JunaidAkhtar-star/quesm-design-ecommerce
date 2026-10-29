@@ -20,6 +20,7 @@ import {
   CheckCircle,
   XCircle,
   X,
+  Menu,
   Truck,
   Eye,
   AlertTriangle,
@@ -29,6 +30,7 @@ import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import InvoiceModal from '../components/InvoiceModal';
 import SEOMeta from '../components/SEOMeta';
+import '../styles/admin.css';
 
 const AdminDashboardPage = () => {
   const { admin, token, isAuthenticated, logout, getAuthHeaders } = useAuth();
@@ -36,6 +38,12 @@ const AdminDashboardPage = () => {
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('overview');
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  const handleTabSelect = (tabId) => {
+    setActiveTab(tabId);
+    setIsMobileSidebarOpen(false);
+  };
 
   // Overview Stats
   const [stats, setStats] = useState(null);
@@ -405,30 +413,80 @@ const AdminDashboardPage = () => {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#f5f4ef' }}>
+    <div className="admin-layout">
       <SEOMeta title="Owner Administration Panel" />
 
+      {/* Mobile Sticky Header Bar */}
+      <header className="admin-mobile-header">
+        <div className="brand-wrap">
+          <button
+            onClick={() => setIsMobileSidebarOpen(true)}
+            className="toggle-btn"
+            aria-label="Open menu drawer"
+          >
+            <Menu size={20} />
+          </button>
+          <img
+            src="/logo.png"
+            alt="QueS.M design"
+            style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px solid var(--primary-gold)' }}
+          />
+          <h2 className="brand-title">QueS.M Owner</h2>
+        </div>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <Link
+            to="/"
+            target="_blank"
+            style={{
+              fontSize: '0.78rem',
+              color: '#f7e7b4',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              background: 'rgba(212,175,55,0.15)',
+              padding: '6px 12px',
+              borderRadius: '6px',
+              border: '1px solid rgba(212,175,55,0.3)'
+            }}
+          >
+            <ExternalLink size={12} />
+            <span>Store</span>
+          </Link>
+          <button
+            onClick={() => logout()}
+            style={{ background: 'none', color: '#ff6b6b', padding: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+            title="Sign Out"
+          >
+            <LogOut size={16} />
+          </button>
+        </div>
+      </header>
+
+      {/* Backdrop overlay for mobile drawer */}
+      {isMobileSidebarOpen && (
+        <div className="admin-drawer-backdrop" onClick={() => setIsMobileSidebarOpen(false)} />
+      )}
+
       {/* Sidebar Navigation */}
-      <aside
-        style={{
-          width: '260px',
-          background: 'var(--luxury-black)',
-          color: '#fff',
-          display: 'flex',
-          flexDirection: 'column',
-          borderRight: '1px solid rgba(212, 175, 55, 0.2)',
-          flexShrink: 0
-        }}
-      >
-        <div style={{ padding: '24px', borderBottom: '1px solid #222', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <img src="/logo.png" alt="QueS.M design" style={{ width: '44px', height: '44px', borderRadius: '50%', border: '1px solid var(--primary-gold)' }} />
-          <div>
-            <h3 style={{ fontSize: '1.15rem', color: '#f7e7b4', fontFamily: 'var(--font-heading)' }}>QueS.M Owner</h3>
-            <span style={{ fontSize: '0.72rem', color: '#888' }}>Proprietor Control</span>
+      <aside className={`admin-sidebar ${isMobileSidebarOpen ? 'drawer-open' : ''}`}>
+        <div className="admin-sidebar-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <img src="/logo.png" alt="QueS.M design" style={{ width: '42px', height: '42px', borderRadius: '50%', border: '1px solid var(--primary-gold)' }} />
+            <div>
+              <h3 style={{ fontSize: '1.15rem', color: '#f7e7b4', fontFamily: 'var(--font-heading)' }}>QueS.M Owner</h3>
+              <span style={{ fontSize: '0.72rem', color: '#888' }}>Proprietor Control</span>
+            </div>
           </div>
+          <button
+            onClick={() => setIsMobileSidebarOpen(false)}
+            className="admin-sidebar-close-btn"
+            aria-label="Close sidebar"
+          >
+            <X size={18} />
+          </button>
         </div>
 
-        <nav style={{ padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '4px', flexGrow: 1 }}>
+        <nav style={{ padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '4px', flexGrow: 1, overflowY: 'auto' }}>
           {[
             { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
             { id: 'orders', label: 'Orders & Dispatch', icon: ShoppingBag },
@@ -445,7 +503,7 @@ const AdminDashboardPage = () => {
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => handleTabSelect(item.id)}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -504,9 +562,9 @@ const AdminDashboardPage = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main style={{ flexGrow: 1, padding: '36px 40px', overflowY: 'auto' }}>
+      <main className="admin-main">
         {/* Top Bar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+        <div className="admin-top-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
           <div>
             <h1 style={{ fontSize: '2rem', fontFamily: 'var(--font-heading)', textTransform: 'capitalize' }}>
               {activeTab.replace('-', ' ')}
@@ -526,7 +584,7 @@ const AdminDashboardPage = () => {
         {activeTab === 'overview' && (
           <div>
             {/* Metric KPI Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginBottom: '32px' }}>
+            <div className="admin-kpi-grid">
               <div style={{ background: '#fff', padding: '24px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 'bold' }}>Total Sales (Lifetime)</span>
                 <h3 className="gold-text" style={{ fontSize: '1.9rem', margin: '8px 0 4px', fontWeight: 'bold' }}>
@@ -561,7 +619,7 @@ const AdminDashboardPage = () => {
             </div>
 
             {/* Low Stock Alerts & Recent Orders */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '28px' }}>
+            <div className="admin-dual-grid">
               {/* Low Stock Products */}
               <div style={{ background: '#fff', padding: '24px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '18px' }}>
@@ -623,20 +681,20 @@ const AdminDashboardPage = () => {
         {/* Tab 2: ORDERS MANAGEMENT */}
         {activeTab === 'orders' && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <div className="admin-filter-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', width: '100%', maxWidth: '600px' }}>
                 <input
                   type="text"
                   placeholder="Search by Order ID, name, phone..."
                   value={orderSearch}
                   onChange={e => setOrderSearch(e.target.value)}
-                  style={{ padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', fontSize: '0.88rem', minWidth: '260px' }}
+                  style={{ padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', fontSize: '0.88rem', flex: '1 1 220px' }}
                 />
 
                 <select
                   value={orderFilter}
                   onChange={e => setOrderFilter(e.target.value)}
-                  style={{ padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', background: '#fff', fontSize: '0.88rem' }}
+                  style={{ padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', background: '#fff', fontSize: '0.88rem', flex: '0 1 160px' }}
                 >
                   <option value="all">All Statuses</option>
                   <option value="Placed">Placed</option>
@@ -661,8 +719,11 @@ const AdminDashboardPage = () => {
             </div>
 
             {/* Orders Table */}
-            <div style={{ background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+            <div className="admin-table-responsive">
+              <div className="admin-swipe-hint">
+                <span>👉 Swipe horizontally to view full order details, customer phone, items & actions</span>
+              </div>
+              <table style={{ width: '100%', minWidth: '820px', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
                 <thead>
                   <tr style={{ background: '#f5f0e6', borderBottom: '2px solid var(--primary-gold)', textAlign: 'left' }}>
                     <th style={{ padding: '14px 16px' }}>Order ID</th>
@@ -745,8 +806,8 @@ const AdminDashboardPage = () => {
         {/* Tab 3: PRODUCTS MANAGEMENT */}
         {activeTab === 'products' && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Manage catalog pieces, stock inventory, and variants.</p>
+            <div className="admin-filter-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>Manage catalog pieces, stock inventory, and variants.</p>
               <button
                 onClick={() => {
                   setEditingProduct(null);
@@ -775,8 +836,11 @@ const AdminDashboardPage = () => {
               </button>
             </div>
 
-            <div style={{ background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+            <div className="admin-table-responsive">
+              <div className="admin-swipe-hint">
+                <span>👉 Swipe horizontally to view stock inventory, flags & edit actions</span>
+              </div>
+              <table style={{ width: '100%', minWidth: '780px', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
                 <thead>
                   <tr style={{ background: '#f5f0e6', borderBottom: '2px solid var(--primary-gold)', textAlign: 'left' }}>
                     <th style={{ padding: '12px 16px' }}>Image</th>
@@ -861,8 +925,8 @@ const AdminDashboardPage = () => {
         {/* Tab 4: CATEGORIES MANAGEMENT */}
         {activeTab === 'categories' && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Organize your store collections and promotional tiles.</p>
+            <div className="admin-filter-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>Organize your store collections and promotional tiles.</p>
               <button
                 onClick={() => {
                   setCatFormData({ name: '', description: '', image: '' });
@@ -876,7 +940,7 @@ const AdminDashboardPage = () => {
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
               {categories.map(cat => (
                 <div key={cat._id} style={{ background: '#fff', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
                   <img src={cat.image} alt={cat.name} style={{ width: '100%', height: '140px', objectFit: 'cover' }} />
@@ -896,8 +960,8 @@ const AdminDashboardPage = () => {
         {/* Tab 5: HERO BANNERS */}
         {activeTab === 'banners' && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+            <div className="admin-filter-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
                 Manage homepage carousel hero banners, promotions, and luxury photography.
               </p>
               <button
@@ -920,7 +984,7 @@ const AdminDashboardPage = () => {
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
               {banners.map((b) => (
                 <div
                   key={b._id}
@@ -1008,9 +1072,9 @@ const AdminDashboardPage = () => {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {reviews.map(rev => (
-                <div key={rev._id} style={{ background: '#fff', padding: '20px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                <div key={rev._id} style={{ background: '#fff', padding: '20px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
+                  <div style={{ flex: '1 1 260px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
                       <strong>{rev.customerName}</strong>
                       <span style={{ fontSize: '0.78rem', color: '#888' }}>({rev.customerEmail || 'Guest'})</span>
                       <span style={{ fontSize: '0.85rem', color: '#ff9800' }}>★ {rev.rating}</span>
@@ -1022,7 +1086,7 @@ const AdminDashboardPage = () => {
                     <span style={{ fontSize: '0.75rem', color: '#999' }}>Product: {rev.product?.name}</span>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
                     {rev.isApproved ? (
                       <button onClick={() => handleToggleReviewStatus(rev._id, false)} className="btn-outline" style={{ padding: '6px 12px', fontSize: '0.78rem' }}>
                         Hide
@@ -1048,7 +1112,7 @@ const AdminDashboardPage = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {messages.map(msg => (
                 <div key={msg._id} style={{ background: '#fff', padding: '20px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
                     <div>
                       <h4 style={{ fontSize: '1rem', margin: 0 }}>{msg.name}</h4>
                       <span style={{ fontSize: '0.78rem', color: '#777' }}>{msg.email} • {msg.phone}</span>
@@ -1068,10 +1132,10 @@ const AdminDashboardPage = () => {
         {/* Tab 9: SETTINGS & SECURITY */}
         {activeTab === 'settings' && storeSettings && (
           <div style={{ maxWidth: '780px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            <form onSubmit={handleSaveSettings} style={{ background: '#fff', padding: '30px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
+            <form onSubmit={handleSaveSettings} style={{ background: '#fff', padding: '28px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
               <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-heading)', marginBottom: '20px' }}>Store & Shipping Parameters</h3>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <div className="admin-form-grid-2">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>Store Name</label>
                   <input
@@ -1093,7 +1157,7 @@ const AdminDashboardPage = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <div className="admin-form-grid-2">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>WhatsApp Number (with country code)</label>
                   <input
@@ -1115,7 +1179,7 @@ const AdminDashboardPage = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <div className="admin-form-grid-3">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>Shipping Fee (INR)</label>
                   <input
@@ -1206,8 +1270,11 @@ const AdminDashboardPage = () => {
               Full audit trail recording logins, order changes, product edits, and IP addresses.
             </p>
 
-            <div style={{ background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+            <div className="admin-table-responsive">
+              <div className="admin-swipe-hint">
+                <span>👉 Swipe horizontally to view full audit logs, IP address & device info</span>
+              </div>
+              <table style={{ width: '100%', minWidth: '680px', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                 <thead>
                   <tr style={{ background: '#f5f0e6', borderBottom: '2px solid var(--primary-gold)', textAlign: 'left' }}>
                     <th style={{ padding: '12px 16px' }}>Timestamp</th>
@@ -1250,7 +1317,7 @@ const AdminDashboardPage = () => {
       {/* Update Order Status Modal */}
       {statusUpdateModalOrder && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 125, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: '#fff', padding: '28px', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '440px' }}>
+          <div className="admin-modal-card" style={{ background: '#fff', padding: '28px', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '440px', maxHeight: '90vh', overflowY: 'auto' }}>
             <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-heading)', marginBottom: '16px' }}>
               Update Order #{statusUpdateModalOrder.orderNumber}
             </h3>
@@ -1318,7 +1385,7 @@ const AdminDashboardPage = () => {
       {/* Add / Edit Product Modal */}
       {isProductModalOpen && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 125, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: '#fff', padding: '30px', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div className="admin-modal-card" style={{ background: '#fff', padding: '30px', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto' }}>
             <h3 style={{ fontSize: '1.3rem', fontFamily: 'var(--font-heading)', marginBottom: '16px' }}>
               {editingProduct ? 'Edit Product' : 'Add Handcrafted Product'}
             </h3>
@@ -1335,7 +1402,7 @@ const AdminDashboardPage = () => {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+              <div className="admin-form-grid-3">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>Category *</label>
                   <select
@@ -1445,7 +1512,7 @@ const AdminDashboardPage = () => {
       {/* Add Hero Banner Modal */}
       {isBannerModalOpen && (
         <div className="modal-backdrop">
-          <div className="modal-content" style={{ maxWidth: '580px' }}>
+          <div className="modal-content admin-modal-card" style={{ maxWidth: '580px', maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h2 style={{ fontSize: '1.3rem', fontFamily: 'var(--font-heading)' }}>Add Hero Banner</h2>
               <button onClick={() => setIsBannerModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>

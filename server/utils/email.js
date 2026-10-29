@@ -1,3 +1,5 @@
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env'), override: true });
 const nodemailer = require('nodemailer');
 
 const createTransporter = () => {
@@ -28,11 +30,15 @@ const sendCustomerOrderEmail = async (order) => {
     }
 
     const transporter = createTransporter();
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
-    const trackOrderUrl = `${clientUrl}/track-order?orderId=${encodeURIComponent(order.orderNumber)}&phone=${encodeURIComponent(order.customer.phone || '')}`;
-    const myOrdersUrl = `${clientUrl}/my-orders`;
-    const whatsappNum = process.env.WHATSAPP_NUMBER || '917978201960';
+    const rawClientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const isLocal = rawClientUrl.includes('localhost') || rawClientUrl.includes('127.0.0.1');
     const storeEmail = process.env.STORE_EMAIL || 'contactquesmdesign@gmail.com';
+    const whatsappNum = process.env.WHATSAPP_NUMBER || '917978201960';
+
+    // In local development, avoid linking to non-existent domains which trigger Google Safe Browsing spam flags
+    const trackOrderUrl = isLocal
+      ? `https://wa.me/${whatsappNum}?text=Hello%20QueS.M%20Design,%20please%20update%20me%20on%20my%20Order%20${encodeURIComponent(order.orderNumber)}`
+      : `${rawClientUrl}/track-order?orderId=${encodeURIComponent(order.orderNumber)}&phone=${encodeURIComponent(order.customer.phone || '')}`;
 
     const itemsListHtml = order.items
       .map(
@@ -80,7 +86,7 @@ const sendCustomerOrderEmail = async (order) => {
                   <td style="padding: 30px 28px 20px;">
                     <div style="text-align: center; margin-bottom: 22px;">
                       <span style="display: inline-block; background: #eef8ee; color: #2e7d32; border: 1px solid #c8e6c9; padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
-                        ✓ Order Placed Successfully
+                        Order Placed Successfully
                       </span>
                       <h2 style="color: #111; font-family: Georgia, serif; font-size: 22px; margin: 12px 0 6px;">Thank You, ${order.customer.name}!</h2>
                       <p style="color: #666; font-size: 14px; margin: 0; line-height: 1.5;">We have received your order. Our master artisans are preparing your handmade pieces with love.</p>
@@ -101,8 +107,8 @@ const sendCustomerOrderEmail = async (order) => {
                     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 20px 0;">
                       <tr>
                         <td align="center">
-                          <a href="${trackOrderUrl}" style="display: inline-block; background: linear-gradient(135deg, #d4af37 0%, #aa820a 100%); color: #ffffff; text-decoration: none; padding: 13px 32px; border-radius: 8px; font-weight: bold; font-size: 14px; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(170, 130, 10, 0.25);">
-                            Track Your Order Live 📦
+                          <a href="${trackOrderUrl}" style="display: inline-block; background-color: #b89742; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-weight: bold; font-size: 14px;">
+                            ${isLocal ? 'Track & Support on WhatsApp' : 'Track Your Order Live'}
                           </a>
                         </td>
                       </tr>
@@ -132,7 +138,7 @@ const sendCustomerOrderEmail = async (order) => {
                         </tr>
                         <tr>
                           <td style="padding: 4px 8px;" align="right">Shipping:</td>
-                          <td style="padding: 4px 8px;" align="right">${order.shippingFee === 0 ? '<span style="color:#2e7d32; font-weight:bold;">FREE</span>' : `₹${order.shippingFee}`}</td>
+                          <td style="padding: 4px 8px; color: #2e7d32; font-weight: 600;" align="right">${order.shippingFee === 0 ? 'Complimentary' : `₹${order.shippingFee}`}</td>
                         </tr>
                         ${order.discount > 0 ? `
                         <tr>
@@ -165,28 +171,29 @@ const sendCustomerOrderEmail = async (order) => {
                           <strong style="color: #111; display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px;">Payment Details:</strong>
                           <span>${paymentLabel}</span><br>
                           <span style="font-size: 12px; color: #777;">Delivery timeline: 3–7 business days</span><br>
-                          ${order.giftWrap && order.giftMessage ? `<div style="margin-top: 6px; font-style: italic; color: #aa820a; font-size: 12px;">🎁 Gift Note: "${order.giftMessage}"</div>` : ''}
+                          ${order.giftWrap && order.giftMessage ? `<div style="margin-top: 6px; font-style: italic; color: #aa820a; font-size: 12px;">Gift Note: "${order.giftMessage}"</div>` : ''}
                         </td>
                       </tr>
                     </table>
 
+                    ${!isLocal ? `
                     <!-- Customer Portal Navigation -->
                     <div style="text-align: center; margin-top: 26px; padding-top: 20px; border-top: 1px dashed #ddd;">
-                      <a href="${myOrdersUrl}" style="color: #b89742; font-size: 13px; text-decoration: none; font-weight: bold; margin: 0 12px;">
-                        📋 View All My Orders
+                      <a href="${rawClientUrl}/my-orders" style="color: #b89742; font-size: 13px; text-decoration: none; font-weight: bold; margin: 0 12px;">
+                        View All My Orders
                       </a>
                       <span style="color: #ccc;">•</span>
-                      <a href="${clientUrl}/shop" style="color: #b89742; font-size: 13px; text-decoration: none; font-weight: bold; margin: 0 12px;">
-                        ✨ Continue Shopping
+                      <a href="${rawClientUrl}/shop" style="color: #b89742; font-size: 13px; text-decoration: none; font-weight: bold; margin: 0 12px;">
+                        Continue Shopping
                       </a>
-                    </div>
+                    </div>` : ''}
                   </td>
                 </tr>
 
                 <!-- Footer Support Note -->
                 <tr>
                   <td style="background: #fbf9f4; padding: 22px 20px; text-align: center; border-top: 1px solid #ede7db; font-size: 12px; color: #777;">
-                    <p style="margin: 0 0 6px;">Need assistance with your order? We are always here to help!</p>
+                    <p style="margin: 0 0 6px;">Need assistance with your order? We are always here to help.</p>
                     <p style="margin: 0;">
                       WhatsApp: <a href="https://wa.me/${whatsappNum}" style="color: #25D366; font-weight: bold; text-decoration: none;">+${whatsappNum}</a>
                       &nbsp;|&nbsp;
@@ -206,12 +213,47 @@ const sendCustomerOrderEmail = async (order) => {
       </html>
     `;
 
+    const plainText = [
+      `QueS.M design - Order Confirmation #${order.orderNumber}`,
+      `Date: ${new Date(order.createdAt || Date.now()).toLocaleDateString('en-IN')}`,
+      ``,
+      `Dear ${order.customer.name},`,
+      `Thank you for shopping with QueS.M design. We have received your order and our master artisans are preparing your handcrafted pieces.`,
+      ``,
+      `--- Order Summary ---`,
+      ...order.items.map(i => `• ${i.name}${i.variant ? ` (${i.variant})` : ''} x ${i.quantity} - ₹${i.total.toLocaleString('en-IN')}`),
+      ``,
+      `Subtotal: ₹${order.subtotal.toLocaleString('en-IN')}`,
+      `Shipping: ${order.shippingFee === 0 ? 'Complimentary' : '₹' + order.shippingFee}`,
+      order.discount > 0 ? `Discount (${order.couponApplied?.code || 'Coupon'}): -₹${order.discount.toLocaleString('en-IN')}` : '',
+      `Total Amount: ₹${order.totalAmount.toLocaleString('en-IN')}`,
+      `Payment: ${paymentLabel}`,
+      ``,
+      `--- Delivery Address ---`,
+      `${order.customer.name}`,
+      `${order.customer.address}`,
+      `${order.customer.city}, ${order.customer.state} - ${order.customer.pincode}`,
+      `Phone: ${order.customer.phone}`,
+      ``,
+      `--- Track Your Order ---`,
+      `Track live delivery status: ${trackOrderUrl}`,
+      ``,
+      `Need help? Email: ${storeEmail} | WhatsApp: +${whatsappNum}`,
+      `QueS.M design • Handcrafted Luxury Boutique`
+    ].filter(Boolean).join('\n');
+
     if (transporter) {
       const info = await transporter.sendMail({
         from: process.env.FROM_EMAIL || `"QueS.M design" <${storeEmail}>`,
         to: order.customer.email,
-        subject: `🎉 Order Confirmed! #${order.orderNumber} - QueS.M design`,
-        html
+        replyTo: storeEmail,
+        subject: `Order Confirmation #${order.orderNumber} | QueS.M design`,
+        text: plainText,
+        html,
+        headers: {
+          'X-Entity-Ref-ID': order.orderNumber,
+          'X-Auto-Response-Suppress': 'All'
+        }
       });
       console.log(`[Email] Customer order confirmation sent to ${order.customer.email} (Order #${order.orderNumber}, MsgId: ${info.messageId})`);
     } else {
@@ -292,15 +334,17 @@ const sendCustomerOrderStatusEmail = async (order, status, trackingCourier, trac
     if (!order || !order.customer || !order.customer.email) return;
 
     const transporter = createTransporter();
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
-    const trackOrderUrl = `${clientUrl}/track-order?orderId=${encodeURIComponent(order.orderNumber)}&phone=${encodeURIComponent(order.customer.phone || '')}`;
+    const rawClientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const isLocal = rawClientUrl.includes('localhost') || rawClientUrl.includes('127.0.0.1');
+    const publicBaseUrl = isLocal ? 'https://ques-m-design.vercel.app' : rawClientUrl;
+    const trackOrderUrl = `${publicBaseUrl}/track-order?orderId=${encodeURIComponent(order.orderNumber)}&phone=${encodeURIComponent(order.customer.phone || '')}`;
     const storeEmail = process.env.STORE_EMAIL || 'contactquesmdesign@gmail.com';
     const whatsappNum = process.env.WHATSAPP_NUMBER || '917978201960';
 
     const statusTitleMap = {
-      Shipped: 'Your Order Has Been Dispatched! 🚚',
-      Delivered: 'Your Order Has Been Delivered! 🎁',
-      Processing: 'Artisans Are Crafting Your Pieces ✂️',
+      Shipped: 'Your Order Has Been Dispatched',
+      Delivered: 'Your Order Has Been Delivered',
+      Processing: 'Your Order is in Production',
       Cancelled: 'Order Cancellation Notice'
     };
 
@@ -359,12 +403,34 @@ const sendCustomerOrderStatusEmail = async (order, status, trackingCourier, trac
       </html>
     `;
 
+    const plainText = [
+      `QueS.M design - Order Status Update`,
+      `Order ID: #${order.orderNumber}`,
+      `Status: ${status}`,
+      ``,
+      `Dear ${order.customer.name},`,
+      `Your order #${order.orderNumber} status has been updated to: ${status}.`,
+      (trackingNumber || order.trackingNumber) ? `Courier: ${trackingCourier || order.trackingCourier || 'Express Partner'}\nTracking Number: ${trackingNumber || order.trackingNumber}` : '',
+      note ? `Note: ${note}` : '',
+      ``,
+      `Track your package live: ${trackOrderUrl}`,
+      ``,
+      `Need assistance? WhatsApp: +${whatsappNum} | Email: ${storeEmail}`,
+      `QueS.M design • Handcrafted Luxury Boutique`
+    ].filter(Boolean).join('\n');
+
     if (transporter) {
       await transporter.sendMail({
         from: process.env.FROM_EMAIL || `"QueS.M design" <${storeEmail}>`,
         to: order.customer.email,
-        subject: `Update on Order #${order.orderNumber}: ${status} - QueS.M design`,
-        html
+        replyTo: storeEmail,
+        subject: `Order Update #${order.orderNumber}: ${status} | QueS.M design`,
+        text: plainText,
+        html,
+        headers: {
+          'X-Entity-Ref-ID': order.orderNumber,
+          'X-Auto-Response-Suppress': 'All'
+        }
       });
       console.log(`[Email] Order status update (${status}) sent to ${order.customer.email}`);
     }
