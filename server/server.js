@@ -180,8 +180,52 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Email delivery diagnostic check (Resend HTTPS + SMTP)
-app.get('/api/health/email-check', async (req, res) => {
+// Test send live email endpoint
+app.get('/api/health/send-test-email', async (req, res) => {
+  const to = req.query.to || 'contactquesmdesign@gmail.com';
+  try {
+    const { sendCustomerOrderEmail } = require('./utils/email');
+    const mockOrder = {
+      orderNumber: 'TEST-' + Date.now().toString().slice(-4),
+      customer: { name: 'Junaid Akhtar', email: to, phone: '7978201960' },
+      items: [{ name: 'Silk Thread Royal Bangle', quantity: 1, total: 499 }],
+      subtotal: 499,
+      shippingFee: 0,
+      totalAmount: 499,
+      paymentMethod: 'cod',
+      paymentStatus: 'pending'
+    };
+    
+    // Direct call to Resend to inspect exact response
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      return res.status(400).json({ success: false, error: 'No RESEND_API_KEY set' });
+    }
+
+    const resendRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey.trim()}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: process.env.RESEND_FROM || 'QueS.M design <onboarding@resend.dev>',
+        to: [to],
+        subject: 'QueS.M design - Live Test Email',
+        html: '<h2>Order Confirmation Test</h2><p>Your email system on Render is connected!</p>'
+      })
+    });
+
+    const data = await resendRes.json();
+    return res.status(resendRes.ok ? 200 : 400).json({
+      resendStatus: resendRes.status,
+      resendOk: resendRes.ok,
+      data
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
   const hasResend = !!process.env.RESEND_API_KEY;
   const hasUser = !!process.env.SMTP_USER;
   const hasPass = !!process.env.SMTP_PASS;
