@@ -184,8 +184,8 @@ app.get('/api/health', (req, res) => {
 app.get('/api/health/email-check', async (req, res) => {
   const hasUser = !!process.env.SMTP_USER;
   const hasPass = !!process.env.SMTP_PASS;
-  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
-  const port = process.env.SMTP_PORT || '587';
+  const host = req.query.host || process.env.SMTP_HOST || 'smtp.gmail.com';
+  const port = req.query.port || process.env.SMTP_PORT || '587';
   const user = process.env.SMTP_USER ? process.env.SMTP_USER.trim() : '(not set)';
 
   if (!hasUser || !hasPass) {
