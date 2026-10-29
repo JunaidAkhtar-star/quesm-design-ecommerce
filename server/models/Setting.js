@@ -16,11 +16,11 @@ const SettingSchema = new mongoose.Schema(
     },
     storePhone: {
       type: String,
-      default: '+91 98765 43210'
+      default: '+917978201960'
     },
     whatsappNumber: {
       type: String,
-      default: '919876543210'
+      default: '917978201960'
     },
     storeAddress: {
       type: String,
@@ -58,7 +58,7 @@ const SettingSchema = new mongoose.Schema(
       instagram: { type: String, default: 'https://instagram.com/quesmdesign' },
       facebook: { type: String, default: 'https://facebook.com/quesmdesign' },
       youtube: { type: String, default: 'https://youtube.com/@quesmdesign' },
-      whatsapp: { type: String, default: 'https://wa.me/919876543210' }
+      whatsapp: { type: String, default: 'https://wa.me/917978201960' }
     },
     seoDefaults: {
       title: { type: String, default: 'QueS.M design | Luxury Handmade Accessories & Jewelry' },

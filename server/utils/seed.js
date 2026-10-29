@@ -44,8 +44,8 @@ const seedDB = async () => {
       storeName: 'QueS.M design',
       tagline: 'Artisanal Elegance • Handmade With Love',
       storeEmail: 'contactquesmdesign@gmail.com',
-      storePhone: '+91 98765 43210',
-      whatsappNumber: '919876543210',
+      storePhone: process.env.STORE_PHONE || '+917978201960',
+      whatsappNumber: process.env.WHATSAPP_NUMBER || '917978201960',
       storeAddress: 'QueS.M design Studio, Boutique Lane, Arts & Crafts Enclave, India',
       announcementBarText: '✨ Special Festive Offer: Free Express Shipping above ₹799! Use code WELCOME10 for 10% off',
       announcementBarActive: true,
@@ -58,7 +58,7 @@ const seedDB = async () => {
         instagram: 'https://instagram.com/quesmdesign',
         facebook: 'https://facebook.com/quesmdesign',
         youtube: 'https://youtube.com/@quesmdesign',
-        whatsapp: 'https://wa.me/919876543210'
+        whatsapp: 'https://wa.me/917978201960'
       },
       seoDefaults: {
         title: 'QueS.M design | Handmade Accessories & Luxury Bridal Jewellery',
