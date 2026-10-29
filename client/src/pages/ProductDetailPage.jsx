@@ -163,7 +163,7 @@ const ProductDetailPage = () => {
       </nav>
 
       {/* Product Main Display */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '48px', marginBottom: '60px' }}>
+      <div className="pdp-main-grid">
         {/* Left: Gallery */}
         <div>
           <ProductGallery images={product.images} productName={product.name} />

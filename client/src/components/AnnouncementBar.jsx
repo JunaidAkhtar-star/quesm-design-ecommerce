@@ -11,8 +11,8 @@ const AnnouncementBar = () => {
   return (
     <div className="announcement-bar">
       <div className="container bar-content">
-        <Sparkles size={14} className="gold-text" />
-        <span>{settings.announcementBarText}</span>
+        <Sparkles size={14} className="gold-text" style={{ flexShrink: 0 }} />
+        <span style={{ lineHeight: '1.35', padding: '0 8px' }}>{settings.announcementBarText}</span>
         <button
           className="close-btn"
           onClick={() => setDismissed(true)}

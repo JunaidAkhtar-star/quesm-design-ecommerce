@@ -56,6 +56,9 @@
 
 html {
   scroll-behavior: smooth;
+  max-width: 100vw;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 body {
@@ -65,7 +68,16 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  max-width: 100vw;
   overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+#root {
+  max-width: 100vw;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -121,6 +133,19 @@ input, textarea, select {
   max-width: 1240px;
   margin: 0 auto;
   padding: 0 20px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 8px;
+  }
 }
 
 .gold-text {

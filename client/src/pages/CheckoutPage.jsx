@@ -237,7 +237,7 @@ const CheckoutPage = () => {
         </p>
       </div>
 
-      <form onSubmit={handleCheckoutSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '48px', alignItems: 'start' }}>
+      <form onSubmit={handleCheckoutSubmit} className="checkout-layout-grid">
         {/* Left Column: Shipping & Details */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
           {/* Customer Shipping Form */}
@@ -263,7 +263,7 @@ const CheckoutPage = () => {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+              <div className="checkout-form-grid-2">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '6px' }}>
                     {t('phoneNumber')} *
@@ -310,7 +310,7 @@ const CheckoutPage = () => {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+              <div className="checkout-form-grid-3">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>
                     {t('city')} *

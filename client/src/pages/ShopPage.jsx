@@ -134,7 +134,7 @@ const ShopPage = () => {
       </div>
 
       {/* Mobile Filter Toggle Button */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+      <div className="shop-mobile-filter-bar">
         <button
           onClick={() => setShowMobileFilters(true)}
           className="btn-outline"
@@ -165,9 +165,9 @@ const ShopPage = () => {
       </div>
 
       {/* Main Layout: Filters Sidebar + Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '36px', alignItems: 'start' }}>
-        {/* Desktop Sidebar */}
-        <aside style={{ display: 'block' }}>
+      <div className="shop-layout-grid">
+        {/* Desktop Sidebar (Auto-hidden on mobile/tablet) */}
+        <aside className="shop-desktop-sidebar">
           <FilterSidebar
             categories={categories}
             selectedCategory={selectedCategory}
@@ -206,6 +206,7 @@ const ShopPage = () => {
           ) : (
             <>
               <div
+                className="home-products-grid"
                 style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',

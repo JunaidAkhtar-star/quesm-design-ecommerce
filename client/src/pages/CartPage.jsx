@@ -85,7 +85,7 @@ const CartPage = () => {
         {t('yourCart')}
       </h1>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '40px', alignItems: 'start' }}>
+      <div className="cart-layout-grid">
         {/* Left: Items List */}
         <div>
           {/* Free Shipping Banner */}
@@ -112,21 +112,16 @@ const CartPage = () => {
             {cartItems.map((item) => (
               <div
                 key={item.itemKey}
-                style={{
-                  display: 'flex',
-                  gap: '18px',
-                  padding: '20px',
-                  borderBottom: '1px solid var(--border-color)',
-                  alignItems: 'center'
-                }}
+                className="cart-page-item-row"
               >
                 <img
                   src={item.image}
                   alt={item.name}
+                  className="cart-page-item-img"
                   style={{ width: '84px', height: '84px', borderRadius: '10px', objectFit: 'cover' }}
                 />
 
-                <div style={{ flexGrow: 1 }}>
+                <div className="cart-page-item-info" style={{ flexGrow: 1, minWidth: 0 }}>
                   <Link to={`/product/${item.slug}`} style={{ fontWeight: 'bold', fontSize: '1.05rem', color: 'var(--luxury-black)' }}>
                     {item.name}
                   </Link>
@@ -142,7 +137,7 @@ const CartPage = () => {
                   </p>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div className="cart-page-item-actions" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                   <div className="qty-pill">
                     <button className="qty-btn" onClick={() => updateQuantity(item.itemKey, item.quantity - 1)}>-</button>
                     <span className="qty-val">{item.quantity}</span>

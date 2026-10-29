@@ -116,7 +116,7 @@ const Navbar = ({ onOpenSearch }) => {
             {/* Owner Studio Vault Link */}
             <Link
               to="/studio-vault"
-              className="nav-action-btn"
+              className="nav-action-btn nav-vault-btn"
               aria-label="Owner Studio Vault"
               title="Owner Studio Vault"
               style={{ color: '#d4af37' }}

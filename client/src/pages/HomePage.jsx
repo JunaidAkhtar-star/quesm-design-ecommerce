@@ -211,8 +211,8 @@ const HomePage = () => {
       </section>
 
       {/* 4. Artisanal Heritage Story Banner */}
-      <section style={{ background: 'var(--luxury-black)', color: '#fff', padding: '70px 20px', margin: '40px 0', borderTop: '1px solid rgba(212,175,55,0.2)', borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '50px', alignItems: 'center' }}>
+      <section style={{ background: 'var(--luxury-black)', color: '#fff', padding: '60px 14px', margin: '40px 0', borderTop: '1px solid rgba(212,175,55,0.2)', borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
+        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '30px', alignItems: 'center' }}>
           <div>
             <span className="hero-badge" style={{ marginBottom: '14px' }}>Our Craftsmanship</span>
             <h2 style={{ fontSize: '2.6rem', color: '#fff', marginBottom: '18px', lineHeight: '1.2' }}>
@@ -303,8 +303,8 @@ const HomePage = () => {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-              gap: '24px'
+              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+              gap: '20px'
             }}
           >
             {[
