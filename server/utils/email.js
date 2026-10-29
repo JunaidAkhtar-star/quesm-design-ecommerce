@@ -5,6 +5,31 @@ const nodemailer = require('nodemailer');
 
 // Universal Email Dispatcher: Resend HTTPS (Port 443, never blocked) + SMTP fallback
 const dispatchEmail = async ({ to, subject, html, text, replyTo, headers }) => {
+  // 0. If GMAIL_WEBHOOK_URL exists, send directly via Google Apps Script (100% Inbox delivery, zero spam, Port 443)
+  if (process.env.GMAIL_WEBHOOK_URL) {
+    try {
+      const res = await fetch(process.env.GMAIL_WEBHOOK_URL.trim(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: Array.isArray(to) ? to.join(', ') : to,
+          subject,
+          html,
+          text
+        })
+      });
+      const data = await res.json();
+      if (data && data.success) {
+        console.log(`[Email via Google Apps Script] Successfully delivered to ${to}`);
+        return true;
+      } else {
+        console.warn('[Google Webhook Warning]:', data);
+      }
+    } catch (err) {
+      console.warn('[Google Webhook Exception]:', err.message);
+    }
+  }
+
   // 1. If RESEND_API_KEY exists, send via HTTPS on port 443 (100% works on Render & Vercel)
   if (process.env.RESEND_API_KEY) {
     try {
