@@ -2,25 +2,13 @@ import React, { useState } from 'react';
 import { Mail, Phone, MapPin, MessageCircle, Send, Clock, Sparkles, Navigation, ExternalLink } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import SEOMeta from '../components/SEOMeta';
+import { formatGoogleMapsEmbedUrl, getDirectDirectionsUrl } from '../utils/mapHelper';
 
 const ContactPage = () => {
   const { settings, getWhatsAppLink } = useSettings();
 
-  // Derive Google Map Embed URL
-  const getMapEmbedUrl = () => {
-    if (settings.googleMapsUrl) {
-      const match = settings.googleMapsUrl.match(/src=["']([^"']+)["']/i);
-      if (match && match[1]) return match[1];
-      if (settings.googleMapsUrl.startsWith('http')) return settings.googleMapsUrl;
-    }
-    const query = encodeURIComponent(settings.storeAddress || 'QueS.M design Studio Khan Manzil, Odisha, India');
-    return `https://maps.google.com/maps?q=${query}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-  };
-
-  const getDirectDirectionsUrl = () => {
-    const query = encodeURIComponent(settings.storeAddress || 'QueS.M design Studio Khan Manzil, Odisha, India');
-    return `https://www.google.com/maps/search/?api=1&query=${query}`;
-  };
+  const mapEmbedUrl = formatGoogleMapsEmbedUrl(settings.googleMapsUrl, settings.storeAddress);
+  const directionsUrl = getDirectDirectionsUrl(settings.googleMapsUrl, settings.storeAddress);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -196,7 +184,7 @@ const ContactPage = () => {
               </div>
 
               <a
-                href={getDirectDirectionsUrl()}
+                href={directionsUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="btn-outline"
@@ -212,7 +200,7 @@ const ContactPage = () => {
             <div style={{ position: 'relative', width: '100%', height: '260px', background: '#f5f5f5' }}>
               <iframe
                 title="QueS.M design Studio Location Map"
-                src={getMapEmbedUrl()}
+                src={mapEmbedUrl}
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}

@@ -33,6 +33,7 @@ import { useSettings } from '../context/SettingsContext';
 import InvoiceModal from '../components/InvoiceModal';
 import SEOMeta from '../components/SEOMeta';
 import { fetchWithRetry, getCachedData, setCachedData, BOUTIQUE_DEFAULT_CATEGORIES } from '../utils/api';
+import { formatGoogleMapsEmbedUrl } from '../utils/mapHelper';
 import '../styles/admin.css';
 
 const AdminDashboardPage = () => {
@@ -1463,12 +1464,30 @@ const AdminDashboardPage = () => {
                   type="text"
                   value={storeSettings.googleMapsUrl || ''}
                   onChange={e => setStoreSettings({ ...storeSettings, googleMapsUrl: e.target.value })}
-                  placeholder="Paste Google Maps Embed URL or iframe (e.g. https://www.google.com/maps/embed?pb=...)"
+                  placeholder="Paste Google Maps URL, Share Link, or iframe"
                   style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}
                 />
                 <span style={{ fontSize: '0.74rem', color: '#777', marginTop: '4px', display: 'block' }}>
-                  Optional: Paste a custom Google Maps Embed URL or iframe code. If left blank, Google Maps will automatically display the Studio Physical Address above.
+                  Paste any Google Maps link, place URL, or embed iframe. The system will automatically convert it into a live embeddable map for your customers.
                 </span>
+
+                {/* Live Preview Box */}
+                <div style={{ marginTop: '12px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', overflow: 'hidden', background: '#f9f9f9' }}>
+                  <div style={{ padding: '8px 12px', background: '#f5f0e6', fontSize: '0.78rem', fontWeight: '600', color: 'var(--luxury-black)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <MapPin size={14} className="gold-text" />
+                    <span>Live Map Preview (What customers see in Contact Us)</span>
+                  </div>
+                  <div style={{ height: '200px', width: '100%' }}>
+                    <iframe
+                      title="Admin Map Preview"
+                      src={formatGoogleMapsEmbedUrl(storeSettings.googleMapsUrl, storeSettings.storeAddress)}
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      loading="lazy"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="admin-form-grid-2">

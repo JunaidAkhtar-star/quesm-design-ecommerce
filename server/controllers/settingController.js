@@ -1,5 +1,6 @@
 const Setting = require('../models/Setting');
 const ActivityLog = require('../models/ActivityLog');
+const { formatGoogleMapsEmbedUrl } = require('../utils/mapHelper');
 
 // Helper to get or create settings
 const getOrCreateSettings = async () => {
@@ -27,7 +28,7 @@ exports.getPublicSettings = async (req, res) => {
         storePhone: settings.storePhone,
         whatsappNumber: settings.whatsappNumber,
         storeAddress: settings.storeAddress,
-        googleMapsUrl: settings.googleMapsUrl || '',
+        googleMapsUrl: formatGoogleMapsEmbedUrl(settings.googleMapsUrl || settings.storeAddress),
         announcementBarText: settings.announcementBarText,
         announcementBarActive: settings.announcementBarActive,
         currency: settings.currency,
@@ -66,6 +67,21 @@ exports.getAdminSettings = async (req, res) => {
 // @access  Private (Admin)
 exports.updateSettings = async (req, res) => {
   try {
+    if (req.body.googleMapsUrl) {
+      let mapUrl = req.body.googleMapsUrl.trim();
+      if (mapUrl.includes('maps.app.goo.gl') || mapUrl.includes('goo.gl/maps')) {
+        try {
+          const resp = await fetch(mapUrl, { redirect: 'follow' });
+          if (resp && resp.url) {
+            mapUrl = resp.url;
+          }
+        } catch (e) {
+          console.warn('Maps short URL expansion note:', e.message);
+        }
+      }
+      req.body.googleMapsUrl = formatGoogleMapsEmbedUrl(mapUrl);
+    }
+
     let settings = await Setting.findOne();
     if (!settings) {
       settings = await Setting.create(req.body);
