@@ -6,7 +6,7 @@ import { wakeUpServer } from './utils/api';
 import { LanguageProvider } from './context/LanguageContext';
 import { SettingsProvider } from './context/SettingsContext';
 import { WishlistProvider } from './context/WishlistContext';
-import { CartProvider } from './context/CartContext';
+import { CartProvider, useCart } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 
 // Components
@@ -45,10 +45,13 @@ import './styles/boutique.css';
 
 const AppLayout = () => {
   const location = useLocation();
+  const { isCartOpen } = useCart();
   const isAdminPath = location.pathname.startsWith('/admin') ||
     location.pathname === '/studio-vault' ||
     location.pathname === '/studio-portal' ||
     location.pathname === '/owner-login';
+  const isCheckoutPath = location.pathname === '/checkout' ||
+    location.pathname.startsWith('/order-success');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
@@ -95,7 +98,9 @@ const AppLayout = () => {
       {!isAdminPath && <FloatingWhatsApp />}
       {!isAdminPath && <CartDrawer />}
       {!isAdminPath && <LiveSearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />}
-      {!isAdminPath && <MobileBottomNav onOpenSearch={() => setIsSearchOpen(true)} />}
+      {!isAdminPath && !isCheckoutPath && !isCartOpen && (
+        <MobileBottomNav onOpenSearch={() => setIsSearchOpen(true)} />
+      )}
       {!isAdminPath && <CookieBanner />}
       {!isAdminPath && <AbandonedCartReminder />}
     </div>

@@ -63,3 +63,4 @@ const NetworkSlowIndicator = () => {
 };
 
 export default NetworkSlowIndicator;
+

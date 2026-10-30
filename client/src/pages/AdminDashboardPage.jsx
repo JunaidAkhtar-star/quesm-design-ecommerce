@@ -31,6 +31,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import InvoiceModal from '../components/InvoiceModal';
+import { MapPin } from 'lucide-react';
 import LuxurySpinner from '../components/LuxurySpinner';
 import SEOMeta from '../components/SEOMeta';
 import { fetchWithRetry, getCachedData, setCachedData, BOUTIQUE_DEFAULT_CATEGORIES } from '../utils/api';
@@ -1365,7 +1366,8 @@ const AdminDashboardPage = () => {
         )}
 
         {/* Tab 9: SETTINGS & SECURITY */}
-        {activeTab === 'settings' && storeSettings && (
+        {activeTab === 'settings' && (
+          storeSettings ? (
           <div style={{ maxWidth: '780px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
             <form onSubmit={handleSaveSettings} style={{ background: '#fff', padding: '28px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
               <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-heading)', marginBottom: '20px' }}>Store & Shipping Parameters</h3>
@@ -1576,6 +1578,15 @@ const AdminDashboardPage = () => {
               </form>
             </div>
           </div>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '60px 20px', background: '#fff', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+              <LuxurySpinner
+                size="lg"
+                message="Loading Boutique Settings..."
+                submessage="Retrieving studio configurations from cloud."
+              />
+            </div>
+          )
         )}
 
         {/* Tab 10: ACTIVITY LOG */}
