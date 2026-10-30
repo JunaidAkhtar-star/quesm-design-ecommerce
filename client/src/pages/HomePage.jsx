@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Sparkles, Heart, Star, ShieldCheck, Instagram, ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react';
+import { ArrowRight, Sparkles, Heart, Star, ShieldCheck, Instagram, ChevronLeft, ChevronRight, MessageCircle, Truck, Package, Award } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
+import StoryCategories from '../components/StoryCategories';
+import QuickViewModal from '../components/QuickViewModal';
 import SEOMeta from '../components/SEOMeta';
 import { useLanguage } from '../context/LanguageContext';
 import { useSettings } from '../context/SettingsContext';
@@ -19,6 +21,48 @@ const HomePage = () => {
   const [bestSellers, setBestSellers] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // Trending E-Commerce UI State: Mood Filter & QuickView
+  const [activeMood, setActiveMood] = useState('all');
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+
+  const handleOpenQuickView = (product) => {
+    setQuickViewProduct(product);
+    setIsQuickViewOpen(true);
+  };
+
+  const displayedFeatured = useMemo(() => {
+    if (!featuredProducts || featuredProducts.length === 0) return [];
+    if (activeMood === 'all') return featuredProducts.slice(0, 8);
+    if (activeMood === 'bridal') {
+      return featuredProducts.filter(p =>
+        (p.tags && p.tags.some(t => /bridal|wedding|haldi|kundan/i.test(t))) ||
+        /bridal|kundan|wedding|silk/i.test(p.name) ||
+        /bridal|flower/i.test(p.categorySlug || '')
+      );
+    }
+    if (activeMood === 'haldi') {
+      return featuredProducts.filter(p =>
+        (p.tags && p.tags.some(t => /haldi|mehendi|flower|floral/i.test(t))) ||
+        /haldi|flower|floral|yellow/i.test(p.name) ||
+        /flower/i.test(p.categorySlug || '')
+      );
+    }
+    if (activeMood === 'kundan') {
+      return featuredProducts.filter(p =>
+        (p.tags && p.tags.some(t => /kundan|zircon|emerald|pearl/i.test(t))) ||
+        /kundan|zircon|emerald|pearl/i.test(p.name)
+      );
+    }
+    if (activeMood === 'under799') {
+      return featuredProducts.filter(p => (p.discountedPrice || p.price) <= 799);
+    }
+    if (activeMood === 'bestseller') {
+      return featuredProducts.filter(p => p.isBestSeller);
+    }
+    return featuredProducts.slice(0, 8);
+  }, [featuredProducts, activeMood]);
 
   useEffect(() => {
     let isMounted = true;
@@ -151,8 +195,48 @@ const HomePage = () => {
         )}
       </section>
 
-      {/* 2. Curated Categories */}
-      <section className="container" style={{ padding: '70px 20px 40px' }}>
+      {/* 2. Instagram/Nykaa-Style Trending Story Circles */}
+      <StoryCategories categories={categories} />
+
+      {/* 3. Luxury Value Assurance Strip (4 Pillars) */}
+      <section className="container" style={{ padding: '24px 20px 10px' }}>
+        <div className="assurance-grid">
+          <div className="assurance-card">
+            <div className="assurance-icon-box">
+              <Sparkles size={24} />
+            </div>
+            <h4 className="assurance-title">100% Artisanal Craft</h4>
+            <p className="assurance-desc">Handcrafted silk thread bangles & genuine kundan stones.</p>
+          </div>
+
+          <div className="assurance-card">
+            <div className="assurance-icon-box">
+              <Truck size={24} />
+            </div>
+            <h4 className="assurance-title">Free Express Shipping</h4>
+            <p className="assurance-desc">Complimentary priority delivery on orders above ₹799.</p>
+          </div>
+
+          <div className="assurance-card">
+            <div className="assurance-icon-box">
+              <Package size={24} />
+            </div>
+            <h4 className="assurance-title">24-48h Studio Dispatch</h4>
+            <p className="assurance-desc">Safe boutique packaging with live tracking alerts.</p>
+          </div>
+
+          <div className="assurance-card">
+            <div className="assurance-icon-box">
+              <MessageCircle size={24} />
+            </div>
+            <h4 className="assurance-title">Bridal Concierge</h4>
+            <p className="assurance-desc">Custom color matching & bespoke orders on WhatsApp.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Curated Categories */}
+      <section className="container" style={{ padding: '50px 20px 40px' }}>
         <div style={{ textAlign: 'center', maxWidth: '650px', margin: '0 auto 40px' }}>
           <span className="gold-badge" style={{ marginBottom: '10px' }}>
             <Sparkles size={13} />
@@ -196,9 +280,9 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* 3. Featured Treasures */}
+      {/* 5. Featured Treasures with Trending Occasion/Mood Filter */}
       <section className="container" style={{ padding: '40px 20px 60px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '20px', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <span className="gold-badge" style={{ marginBottom: '8px' }}>
               <Heart size={12} fill="#d4af37" />
@@ -217,6 +301,26 @@ const HomePage = () => {
           </Link>
         </div>
 
+        {/* Trending Mood/Occasion Pills Strip */}
+        <div className="mood-filter-strip">
+          {[
+            { id: 'all', label: '✨ All Pieces' },
+            { id: 'bridal', label: '👑 Bridal & Wedding' },
+            { id: 'haldi', label: '💛 Haldi & Mehendi' },
+            { id: 'kundan', label: '💎 Kundan & Pearls' },
+            { id: 'under799', label: '🎁 Under ₹799' },
+            { id: 'bestseller', label: '🔥 Best Sellers' }
+          ].map(pill => (
+            <button
+              key={pill.id}
+              onClick={() => setActiveMood(pill.id)}
+              className={`mood-pill-btn ${activeMood === pill.id ? 'active' : ''}`}
+            >
+              {pill.label}
+            </button>
+          ))}
+        </div>
+
         <div
           style={{
             display: 'grid',
@@ -224,9 +328,22 @@ const HomePage = () => {
             gap: '24px'
           }}
         >
-          {featuredProducts.slice(0, 8).map(prod => (
-            <ProductCard key={prod._id} product={prod} />
-          ))}
+          {displayedFeatured.length > 0 ? (
+            displayedFeatured.map(prod => (
+              <ProductCard key={prod._id} product={prod} onQuickView={handleOpenQuickView} />
+            ))
+          ) : (
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px 20px', color: '#888' }}>
+              <p>No handcrafted treasures match this filter right now.</p>
+              <button
+                onClick={() => setActiveMood('all')}
+                className="btn-outline"
+                style={{ marginTop: '12px', display: 'inline-block' }}
+              >
+                View All Pieces
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
@@ -299,7 +416,7 @@ const HomePage = () => {
           }}
         >
           {bestSellers.slice(0, 4).map(prod => (
-            <ProductCard key={prod._id} product={prod} />
+            <ProductCard key={prod._id} product={prod} onQuickView={handleOpenQuickView} />
           ))}
         </div>
       </section>
@@ -447,6 +564,13 @@ const HomePage = () => {
           ))}
         </div>
       </section>
+
+      {/* Modern Trending Quick View Popover Modal */}
+      <QuickViewModal
+        product={quickViewProduct}
+        isOpen={isQuickViewOpen}
+        onClose={() => setIsQuickViewOpen(false)}
+      />
     </div>
   );
 };

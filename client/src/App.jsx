@@ -18,6 +18,7 @@ import CartDrawer from './components/CartDrawer';
 import LiveSearchModal from './components/LiveSearchModal';
 import CookieBanner from './components/CookieBanner';
 import AbandonedCartReminder from './components/AbandonedCartReminder';
+import MobileBottomNav from './components/MobileBottomNav';
 import ErrorBoundary from './components/ErrorBoundary';
 
 // Pages
@@ -92,6 +93,7 @@ const AppLayout = () => {
       {!isAdminPath && <FloatingWhatsApp />}
       {!isAdminPath && <CartDrawer />}
       {!isAdminPath && <LiveSearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />}
+      {!isAdminPath && <MobileBottomNav onOpenSearch={() => setIsSearchOpen(true)} />}
       {!isAdminPath && <CookieBanner />}
       {!isAdminPath && <AbandonedCartReminder />}
     </div>

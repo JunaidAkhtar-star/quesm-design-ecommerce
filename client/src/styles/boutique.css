@@ -1377,3 +1377,696 @@
     grid-column: span 1;
   }
 }
+
+/* ==========================================================================
+   2026 Trending E-Commerce UI Elements
+   Story Categories, QuickView, Mobile Bottom Nav, Filter Chips, Guarantees
+   ========================================================================== */
+
+/* 1. Story Categories Strip (Instagram / Nykaa Trending Style) */
+.story-strip-container {
+  padding: 18px 0 14px;
+  background: #fdfcf9;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+  position: relative;
+}
+
+.story-strip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+.story-strip-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--luxury-black);
+}
+
+.story-strip-viewall {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--primary-gold-dark);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+.story-strip-viewall:hover {
+  text-decoration: underline;
+  color: var(--primary-gold);
+}
+
+.story-scroll-row {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 6px 4px 10px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.story-scroll-row::-webkit-scrollbar {
+  display: none;
+}
+
+.story-circle-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  gap: 8px;
+  flex-shrink: 0;
+  width: 78px;
+  transition: transform var(--transition-fast);
+}
+.story-circle-item:hover {
+  transform: translateY(-3px);
+}
+
+.story-avatar-ring {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  padding: 2.5px;
+  background: linear-gradient(135deg, #d4af37, #f3e5ab, #aa771c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+  transition: box-shadow var(--transition-fast);
+}
+.story-circle-item:hover .story-avatar-ring {
+  box-shadow: 0 6px 18px rgba(212, 175, 55, 0.45);
+}
+
+.story-avatar-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  overflow: hidden;
+  background: #f7f5ef;
+}
+.story-avatar-inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-medium);
+}
+.story-circle-item:hover .story-avatar-inner img {
+  transform: scale(1.08);
+}
+
+.story-badge {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--luxury-black);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 8px;
+  border: 1px solid var(--primary-gold);
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+.story-label {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--luxury-black);
+  text-align: center;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 78px;
+}
+
+/* 2. Shop By Mood & Occasion Filter Chips */
+.mood-filter-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 10px 4px 20px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.mood-pill-btn {
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  background: #fff;
+  color: var(--text-main);
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+.mood-pill-btn:hover,
+.mood-pill-btn.active {
+  background: var(--luxury-black);
+  color: #fff;
+  border-color: var(--luxury-black);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.mood-pill-btn.active .gold-text {
+  color: #d4af37 !important;
+}
+
+/* 3. Product Card Quick View Button */
+.product-quickview-btn {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  opacity: 0;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: var(--luxury-black);
+  padding: 7px 16px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+  transition: all var(--transition-fast);
+  z-index: 5;
+}
+.product-card:hover .product-quickview-btn {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+.product-quickview-btn:hover {
+  background: var(--luxury-black);
+  color: #fff;
+  border-color: var(--luxury-black);
+}
+
+.badge-lowstock {
+  background: #fff3e0 !important;
+  color: #e65100 !important;
+  border: 1px solid #ffb74d !important;
+}
+
+/* 4. QuickView Modal Experience */
+.quickview-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.quickview-card {
+  background: #fff;
+  border-radius: var(--radius-xl);
+  max-width: 880px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  border: 1px solid var(--border-color);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.quickview-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-alt);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #555;
+  transition: all var(--transition-fast);
+  z-index: 10;
+}
+.quickview-close-btn:hover {
+  background: #f0f0f0;
+  color: #111;
+  transform: rotate(90deg);
+}
+
+.quickview-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 32px;
+  padding: 32px;
+}
+
+.quickview-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quickview-main-img-box {
+  position: relative;
+  width: 100%;
+  height: 360px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: #f7f5ef;
+}
+.quickview-main-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.quickview-sale-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: #d32f2f;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: bold;
+}
+
+.quickview-thumbs-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.quickview-thumb-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-sm);
+  border: 2px solid transparent;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  background: transparent;
+  flex-shrink: 0;
+}
+.quickview-thumb-btn.active {
+  border-color: var(--primary-gold);
+}
+.quickview-thumb-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.quickview-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.quickview-category-tag {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--primary-gold-dark);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.quickview-title {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  line-height: 1.25;
+  margin-bottom: 8px;
+  color: var(--luxury-black);
+}
+
+.quickview-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.quickview-rating {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+.quickview-reviews-count {
+  color: #777;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+.quickview-stock-tag {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #2e7d32;
+}
+
+.quickview-price-box {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.quickview-price-current {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--luxury-black);
+}
+.quickview-price-original {
+  font-size: 1rem;
+  color: #888;
+  text-decoration: line-through;
+}
+.quickview-price-save {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #d32f2f;
+  background: #ffebee;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.quickview-description {
+  font-size: 0.88rem;
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+
+.quickview-variant-section {
+  margin-bottom: 18px;
+}
+.quickview-variant-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+.quickview-variants-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.quickview-variant-btn {
+  padding: 7px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.quickview-variant-btn:hover,
+.quickview-variant-btn.active {
+  border-color: var(--primary-gold);
+  background: var(--primary-gold-subtle);
+  color: var(--primary-gold-dark);
+}
+
+.quickview-action-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.quickview-add-btn {
+  flex: 1;
+  padding: 12px 18px;
+  font-size: 0.92rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.quickview-wishlist-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #555;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+.quickview-wishlist-btn:hover {
+  border-color: #d32f2f;
+  color: #d32f2f;
+}
+
+.quickview-trust-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #fdfcf9;
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+}
+.quickview-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.quickview-footer-links {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-color);
+  margin-top: auto;
+}
+.quickview-full-link {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--primary-gold-dark);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.quickview-full-link:hover {
+  text-decoration: underline;
+}
+.quickview-wa-link {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #25d366;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* 5. Sticky Mobile Bottom Navigation Bar */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid rgba(212, 175, 55, 0.25);
+  z-index: 100;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 4px;
+}
+
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    display: flex;
+  }
+  body {
+    padding-bottom: 64px; /* clearance for sticky bottom bar */
+  }
+  .quickview-grid {
+    grid-template-columns: 1fr;
+    padding: 20px 16px;
+    gap: 20px;
+  }
+  .quickview-main-img-box {
+    height: 280px;
+  }
+}
+
+.mob-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: #666;
+  text-decoration: none;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  flex: 1;
+}
+
+.mob-nav-item.active {
+  color: var(--primary-gold-dark);
+}
+.mob-nav-item.active svg {
+  color: var(--primary-gold-dark);
+  transform: scale(1.1);
+}
+
+.mob-nav-icon-box {
+  position: relative;
+  display: inline-flex;
+}
+
+.mob-nav-badge {
+  position: absolute;
+  top: -4px;
+  right: -8px;
+  background: var(--primary-gold-dark);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  border: 1.5px solid #fff;
+}
+
+/* 6. Luxury Assurance Strip (4 Cards) */
+.assurance-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin: 36px 0;
+}
+
+.assurance-card {
+  background: #fff;
+  padding: 24px 18px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.assurance-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.15);
+  border-color: rgba(212, 175, 55, 0.4);
+}
+
+.assurance-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--primary-gold-subtle);
+  color: var(--primary-gold-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.assurance-title {
+  font-size: 0.98rem;
+  font-family: var(--font-heading);
+  margin-bottom: 4px;
+  color: var(--luxury-black);
+}
+
+.assurance-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .assurance-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+@media (max-width: 480px) {
+  .assurance-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+

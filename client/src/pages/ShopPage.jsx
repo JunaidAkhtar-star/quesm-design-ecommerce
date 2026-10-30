@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import FilterSidebar from '../components/FilterSidebar';
+import QuickViewModal from '../components/QuickViewModal';
 import SEOMeta from '../components/SEOMeta';
 import { Sparkles, SlidersHorizontal, X } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
@@ -29,6 +30,15 @@ const ShopPage = () => {
   const [selectedRating, setSelectedRating] = useState(0);
   const [sortBy, setSortBy] = useState('newest');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  // Quick View Modal State
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+
+  const handleOpenQuickView = (product) => {
+    setQuickViewProduct(product);
+    setIsQuickViewOpen(true);
+  };
 
   // Update selectedCategory if URL param changes
   useEffect(() => {
@@ -217,7 +227,7 @@ const ShopPage = () => {
                 }}
               >
                 {products.map(prod => (
-                  <ProductCard key={prod._id} product={prod} />
+                  <ProductCard key={prod._id} product={prod} onQuickView={handleOpenQuickView} />
                 ))}
               </div>
 
@@ -304,6 +314,12 @@ const ShopPage = () => {
           </div>
         </div>
       )}
+      {/* Trending Quick View Popover Modal */}
+      <QuickViewModal
+        product={quickViewProduct}
+        isOpen={isQuickViewOpen}
+        onClose={() => setIsQuickViewOpen(false)}
+      />
     </div>
   );
 };
