@@ -1,10 +1,26 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, MessageCircle, Send, Clock, Sparkles } from 'lucide-react';
+import { Mail, Phone, MapPin, MessageCircle, Send, Clock, Sparkles, Navigation, ExternalLink } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import SEOMeta from '../components/SEOMeta';
 
 const ContactPage = () => {
   const { settings, getWhatsAppLink } = useSettings();
+
+  // Derive Google Map Embed URL
+  const getMapEmbedUrl = () => {
+    if (settings.googleMapsUrl) {
+      const match = settings.googleMapsUrl.match(/src=["']([^"']+)["']/i);
+      if (match && match[1]) return match[1];
+      if (settings.googleMapsUrl.startsWith('http')) return settings.googleMapsUrl;
+    }
+    const query = encodeURIComponent(settings.storeAddress || 'QueS.M design Studio Khan Manzil, Odisha, India');
+    return `https://maps.google.com/maps?q=${query}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+  };
+
+  const getDirectDirectionsUrl = () => {
+    const query = encodeURIComponent(settings.storeAddress || 'QueS.M design Studio Khan Manzil, Odisha, India');
+    return `https://www.google.com/maps/search/?api=1&query=${query}`;
+  };
 
   const [formData, setFormData] = useState({
     name: '',
@@ -148,24 +164,63 @@ const ContactPage = () => {
             </a>
           </div>
 
-          {/* Map Embed Placeholder */}
+          {/* Interactive Google Map Card */}
           <div
             style={{
-              background: '#f6f3eb',
+              background: '#fff',
               borderRadius: 'var(--radius-lg)',
-              padding: '24px',
               border: '1px solid var(--border-color)',
-              textAlign: 'center',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minHeight: '160px'
+              overflow: 'hidden',
+              boxShadow: 'var(--shadow-sm)'
             }}
           >
-            <MapPin size={28} className="gold-text" style={{ marginBottom: '8px' }} />
-            <h4 style={{ fontSize: '1rem', marginBottom: '4px' }}>Boutique Artisan Studio</h4>
-            <p style={{ fontSize: '0.82rem', color: '#777' }}>{settings.storeAddress || 'QueS.M design Studio Khan Manzil, Odisha, India'}</p>
+            <div
+              style={{
+                padding: '16px 18px',
+                borderBottom: '1px solid var(--border-color)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '10px'
+              }}
+            >
+              <div>
+                <h4 style={{ fontSize: '0.98rem', fontFamily: 'var(--font-heading)', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <MapPin size={16} className="gold-text" />
+                  <span>Studio Location Map</span>
+                </h4>
+                <p style={{ fontSize: '0.78rem', color: '#777', margin: '2px 0 0' }}>
+                  {settings.storeAddress || 'QueS.M design Studio Khan Manzil, Odisha, India'}
+                </p>
+              </div>
+
+              <a
+                href={getDirectDirectionsUrl()}
+                target="_blank"
+                rel="noreferrer"
+                className="btn-outline"
+                style={{ padding: '6px 12px', fontSize: '0.78rem', display: 'inline-flex', alignItems: 'center', gap: '5px' }}
+                title="Open in Google Maps / Get Directions"
+              >
+                <Navigation size={13} />
+                <span>Get Directions</span>
+                <ExternalLink size={12} />
+              </a>
+            </div>
+
+            <div style={{ position: 'relative', width: '100%', height: '260px', background: '#f5f5f5' }}>
+              <iframe
+                title="QueS.M design Studio Location Map"
+                src={getMapEmbedUrl()}
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </div>
           </div>
         </div>
 

@@ -11,6 +11,7 @@ export const SettingsProvider = ({ children }) => {
     storePhone: '+917978201960',
     whatsappNumber: '917978201960',
     storeAddress: 'QueS.M design Studio Khan Manzil, Odisha, India',
+    googleMapsUrl: '',
     announcementBarText: '✨ Free Express Shipping on orders above ₹799! Code: WELCOME10 for 10% off',
     announcementBarActive: true,
     currency: 'INR',

@@ -27,6 +27,7 @@ exports.getPublicSettings = async (req, res) => {
         storePhone: settings.storePhone,
         whatsappNumber: settings.whatsappNumber,
         storeAddress: settings.storeAddress,
+        googleMapsUrl: settings.googleMapsUrl || '',
         announcementBarText: settings.announcementBarText,
         announcementBarActive: settings.announcementBarActive,
         currency: settings.currency,

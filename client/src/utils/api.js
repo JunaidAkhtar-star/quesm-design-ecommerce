@@ -149,3 +149,4 @@ export const fetchWithRetry = async (url, options = {}, retries = 3, delay = 150
 export const wakeUpServer = () => {
   fetch('/api/health').catch(() => {});
 };
+

@@ -1455,6 +1455,22 @@ const AdminDashboardPage = () => {
                 />
               </div>
 
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>
+                  Google Maps Location / Embed URL (Contact Us Section)
+                </label>
+                <input
+                  type="text"
+                  value={storeSettings.googleMapsUrl || ''}
+                  onChange={e => setStoreSettings({ ...storeSettings, googleMapsUrl: e.target.value })}
+                  placeholder="Paste Google Maps Embed URL or iframe (e.g. https://www.google.com/maps/embed?pb=...)"
+                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}
+                />
+                <span style={{ fontSize: '0.74rem', color: '#777', marginTop: '4px', display: 'block' }}>
+                  Optional: Paste a custom Google Maps Embed URL or iframe code. If left blank, Google Maps will automatically display the Studio Physical Address above.
+                </span>
+              </div>
+
               <div className="admin-form-grid-2">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '4px' }}>

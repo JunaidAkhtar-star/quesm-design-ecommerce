@@ -47,6 +47,7 @@ const seedDB = async () => {
       storePhone: process.env.STORE_PHONE || '+917978201960',
       whatsappNumber: process.env.WHATSAPP_NUMBER || '917978201960',
       storeAddress: 'QueS.M design Studio Khan Manzil, Odisha, India',
+      googleMapsUrl: '',
       announcementBarText: '✨ Special Festive Offer: Free Express Shipping above ₹799! Use code WELCOME10 for 10% off',
       announcementBarActive: true,
       currency: 'INR',

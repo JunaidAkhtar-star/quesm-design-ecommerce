@@ -26,6 +26,10 @@ const SettingSchema = new mongoose.Schema(
       type: String,
       default: 'QueS.M design Studio Khan Manzil, Odisha, India'
     },
+    googleMapsUrl: {
+      type: String,
+      default: ''
+    },
     announcementBarText: {
       type: String,
       default: '✨ Special Launch Offer: Free Express Shipping on orders above ₹799! Code: WELCOME10 for 10% off'
