@@ -5,6 +5,7 @@ import FilterSidebar from '../components/FilterSidebar';
 import SEOMeta from '../components/SEOMeta';
 import { Sparkles, SlidersHorizontal, X } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { fetchWithRetry, getCachedData, setCachedData, BOUTIQUE_DEFAULT_CATEGORIES } from '../utils/api';
 
 const ShopPage = () => {
   const { categorySlug } = useParams();
@@ -14,7 +15,7 @@ const ShopPage = () => {
   const searchQuery = searchParams.get('q') || '';
 
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState(() => getCachedData('categories', BOUTIQUE_DEFAULT_CATEGORIES));
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,14 +37,16 @@ const ShopPage = () => {
     }
   }, [categorySlug]);
 
-  // Fetch categories
+  // Fetch categories with retry & cache
   useEffect(() => {
-    fetch('/api/categories')
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) setCategories(data.categories);
+    fetchWithRetry('/api/categories', {}, 2, 1200)
+      .then(res => {
+        if (res?.data?.success && res.data.categories?.length > 0) {
+          setCategories(res.data.categories);
+          setCachedData('categories', res.data.categories);
+        }
       })
-      .catch(err => console.warn('Categories error:', err));
+      .catch(err => console.warn('Categories fetch note:', err));
   }, []);
 
   // Fetch filtered products

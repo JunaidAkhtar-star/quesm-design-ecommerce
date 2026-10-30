@@ -10,6 +10,7 @@ import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useSettings } from '../context/SettingsContext';
 import { useLanguage } from '../context/LanguageContext';
+import { fetchWithRetry } from '../utils/api';
 
 const ProductDetailPage = () => {
   const { slug } = useParams();
@@ -35,9 +36,9 @@ const ProductDetailPage = () => {
     const fetchProduct = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/products/slug/${slug}`);
-        const data = await res.json();
-        if (data.success && data.product) {
+        const res = await fetchWithRetry(`/api/products/slug/${slug}`, {}, 2, 1000);
+        const data = res?.data;
+        if (data?.success && data?.product) {
           setProduct(data.product);
           setRelatedProducts(data.relatedProducts || []);
 

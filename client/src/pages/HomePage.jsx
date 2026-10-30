@@ -5,52 +5,72 @@ import ProductCard from '../components/ProductCard';
 import SEOMeta from '../components/SEOMeta';
 import { useLanguage } from '../context/LanguageContext';
 import { useSettings } from '../context/SettingsContext';
+import { fetchWithRetry, getCachedData, setCachedData, BOUTIQUE_DEFAULT_CATEGORIES } from '../utils/api';
 
 const HomePage = () => {
   const { t } = useLanguage();
   const { settings, getWhatsAppLink, formatPrice } = useSettings();
 
-  const [banners, setBanners] = useState([]);
+  const [banners, setBanners] = useState(() => getCachedData('banners', []));
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [categories, setCategories] = useState([]);
-  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [categories, setCategories] = useState(() => getCachedData('categories', BOUTIQUE_DEFAULT_CATEGORIES));
+  const [featuredProducts, setFeaturedProducts] = useState(() => getCachedData('featured_products', []));
   const [newArrivals, setNewArrivals] = useState([]);
   const [bestSellers, setBestSellers] = useState([]);
   const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchHomeData = async () => {
       try {
-        const [bannersRes, catRes, featRes, newRes, bestRes] = await Promise.all([
-          fetch('/api/banners'),
-          fetch('/api/categories'),
-          fetch('/api/products/featured'),
-          fetch('/api/products/new-arrivals'),
-          fetch('/api/products/best-sellers')
-        ]);
+        const fetchEndpoint = async (url) => {
+          try {
+            const res = await fetchWithRetry(url, {}, 2, 1000);
+            return res.data;
+          } catch (e) {
+            return null;
+          }
+        };
 
         const [bannersData, catData, featData, newData, bestData] = await Promise.all([
-          bannersRes.json(),
-          catRes.json(),
-          featRes.json(),
-          newRes.json(),
-          bestRes.json()
+          fetchEndpoint('/api/banners'),
+          fetchEndpoint('/api/categories'),
+          fetchEndpoint('/api/products/featured'),
+          fetchEndpoint('/api/products/new-arrivals'),
+          fetchEndpoint('/api/products/best-sellers')
         ]);
 
-        if (bannersData.success) setBanners(bannersData.banners);
-        if (catData.success) setCategories(catData.categories);
-        if (featData.success) setFeaturedProducts(featData.products);
-        if (newData.success) setNewArrivals(newData.products);
-        if (bestData.success) setBestSellers(bestData.products);
+        if (!isMounted) return;
+
+        if (bannersData?.success && bannersData.banners?.length > 0) {
+          setBanners(bannersData.banners);
+          setCachedData('banners', bannersData.banners);
+        }
+        if (catData?.success && catData.categories?.length > 0) {
+          setCategories(catData.categories);
+          setCachedData('categories', catData.categories);
+        }
+        if (featData?.success && featData.products?.length > 0) {
+          setFeaturedProducts(featData.products);
+          setCachedData('featured_products', featData.products);
+        }
+        if (newData?.success && newData.products?.length > 0) {
+          setNewArrivals(newData.products);
+        }
+        if (bestData?.success && bestData.products?.length > 0) {
+          setBestSellers(bestData.products);
+        }
       } catch (err) {
         console.warn('Error fetching homepage data:', err);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     fetchHomeData();
+    return () => { isMounted = false; };
   }, []);
 
   // Banner carousel auto slide

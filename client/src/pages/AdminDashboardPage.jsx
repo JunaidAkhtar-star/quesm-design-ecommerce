@@ -32,6 +32,7 @@ import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import InvoiceModal from '../components/InvoiceModal';
 import SEOMeta from '../components/SEOMeta';
+import { fetchWithRetry, getCachedData, setCachedData, BOUTIQUE_DEFAULT_CATEGORIES } from '../utils/api';
 import '../styles/admin.css';
 
 const AdminDashboardPage = () => {
@@ -63,7 +64,9 @@ const AdminDashboardPage = () => {
 
   // Products State
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState(() => getCachedData('categories', BOUTIQUE_DEFAULT_CATEGORIES));
+  const [loadingCategories, setLoadingCategories] = useState(false);
+  const [categoriesError, setCategoriesError] = useState(false);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [productFormData, setProductFormData] = useState({
@@ -174,10 +177,21 @@ const AdminDashboardPage = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch('/api/categories');
-      const data = await res.json();
-      if (data.success) setCategories(data.categories || []);
-    } catch (err) { console.warn(err); }
+      setLoadingCategories(true);
+      setCategoriesError(false);
+      const res = await fetchWithRetry('/api/categories', {}, 2, 1000);
+      if (res?.data?.success && res.data.categories?.length > 0) {
+        setCategories(res.data.categories);
+        setCachedData('categories', res.data.categories);
+      }
+    } catch (err) {
+      console.warn('Categories fetch note:', err);
+      if (!categories || categories.length === 0) {
+        setCategoriesError(true);
+      }
+    } finally {
+      setLoadingCategories(false);
+    }
   };
 
   const fetchBanners = async () => {
@@ -1085,7 +1099,24 @@ const AdminDashboardPage = () => {
               </button>
             </div>
 
-            {categories.length === 0 ? (
+            {loadingCategories && categories.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 20px', background: '#fff', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                <Loader2 size={36} color="var(--primary-gold)" className="spin" style={{ margin: '0 auto 12px' }} />
+                <h3 style={{ margin: '0 0 6px' }}>Connecting to Cloud Studio...</h3>
+                <p style={{ color: '#666', fontSize: '0.88rem' }}>Loading boutique collections from cloud database</p>
+              </div>
+            ) : categoriesError && categories.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 20px', background: '#fff', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                <AlertTriangle size={38} color="#e65100" style={{ margin: '0 auto 12px' }} />
+                <h3 style={{ margin: '0 0 6px' }}>Server Warming Up</h3>
+                <p style={{ color: '#666', fontSize: '0.88rem', maxWidth: '380px', margin: '0 auto 16px' }}>
+                  The cloud backend is spinning up after inactivity. Please click below to refresh.
+                </p>
+                <button onClick={fetchCategories} className="btn-primary" style={{ padding: '8px 20px', fontSize: '0.85rem' }}>
+                  Retry Connection
+                </button>
+              </div>
+            ) : categories.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px 20px', background: '#fff', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                 <Layers size={40} color="#b89742" style={{ marginBottom: '12px' }} />
                 <h3 style={{ margin: '0 0 6px' }}>No Categories Created Yet</h3>

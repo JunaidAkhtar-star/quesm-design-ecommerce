@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { wakeUpServer } from './utils/api';
 
 // Context Providers
 import { LanguageProvider } from './context/LanguageContext';
@@ -47,6 +48,10 @@ const AppLayout = () => {
     location.pathname === '/studio-portal' ||
     location.pathname === '/owner-login';
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  useEffect(() => {
+    wakeUpServer();
+  }, []);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>

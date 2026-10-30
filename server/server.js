@@ -298,4 +298,21 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`[QueS.M design Server] Running in ${process.env.NODE_ENV || 'development'} mode on http://localhost:${PORT}`);
+
+  // Render Free Tier Self-Ping Keep-Alive
+  // Pings its own public URL every 10 minutes to prevent Render free instance inactivity sleep
+  const RENDER_EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL || 'https://quesm-design-ecommerce.onrender.com';
+  if (process.env.NODE_ENV === 'production' || process.env.RENDER_EXTERNAL_URL) {
+    const KEEP_ALIVE_INTERVAL = 10 * 60 * 1000; // 10 minutes
+    setInterval(async () => {
+      try {
+        const pingUrl = `${RENDER_EXTERNAL_URL}/api/health`;
+        const res = await fetch(pingUrl);
+        console.log(`[Keep-Alive] Pinged ${pingUrl} - Status: ${res.status}`);
+      } catch (err) {
+        console.warn('[Keep-Alive] Ping warning:', err.message);
+      }
+    }, KEEP_ALIVE_INTERVAL);
+    console.log(`[Keep-Alive] Initialized self-ping service every 10 minutes for ${RENDER_EXTERNAL_URL}`);
+  }
 });

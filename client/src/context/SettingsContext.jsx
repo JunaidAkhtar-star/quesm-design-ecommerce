@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { fetchWithRetry, getCachedData, setCachedData } from '../utils/api';
 
 const SettingsContext = createContext();
 
 export const SettingsProvider = ({ children }) => {
-  const [settings, setSettings] = useState({
+  const [settings, setSettings] = useState(() => getCachedData('settings', {
     storeName: 'QueS.M design',
     tagline: 'Artisanal Elegance • Handmade With Love',
     storeEmail: 'contactquesmdesign@gmail.com',
@@ -26,15 +27,16 @@ export const SettingsProvider = ({ children }) => {
     enableCod: true,
     enableRazorpay: true,
     razorpayKeyId: 'rzp_test_placeholder_key123'
-  });
-  const [loading, setLoading] = useState(true);
+  }));
+  const [loading, setLoading] = useState(false);
 
   const fetchSettings = async () => {
     try {
-      const res = await fetch('/api/settings/public');
-      const data = await res.json();
-      if (data.success && data.settings) {
+      const res = await fetchWithRetry('/api/settings/public', {}, 2, 1000);
+      const data = res?.data;
+      if (data?.success && data?.settings) {
         setSettings(data.settings);
+        setCachedData('settings', data.settings);
       }
     } catch (err) {
       console.warn('Could not load remote settings, using boutique defaults');
