@@ -72,10 +72,37 @@ export const formatGoogleMapsEmbedUrl = (input, fallbackAddress = 'QueS.M design
 /**
  * Returns direct URL for user navigation in Google Maps app
  */
-export const getDirectDirectionsUrl = (googleMapsUrl, storeAddress) => {
-  if (googleMapsUrl && googleMapsUrl.startsWith('http') && !googleMapsUrl.includes('/maps/embed')) {
-    return googleMapsUrl;
+export const getDirectDirectionsUrl = (googleMapsUrl, mapEmbedUrl, storeAddress) => {
+  // 1. If original googleMapsUrl is a direct place or maps link, use it directly!
+  if (googleMapsUrl && typeof googleMapsUrl === 'string') {
+    const raw = googleMapsUrl.trim();
+    if (raw.startsWith('http') && !raw.includes('/maps/embed')) {
+      return raw;
+    }
   }
-  const query = encodeURIComponent(storeAddress || 'KHANN BROTERS Khan Manzil, Odisha, India');
-  return `https://www.google.com/maps/search/?api=1&query=${query}`;
+
+  // 2. Extract from embed URL (either googleMapsUrl or mapEmbedUrl)
+  const embedStr = (mapEmbedUrl || googleMapsUrl || '').toString();
+  const placeNameMatch = embedStr.match(/!2s([^!&]+)/);
+  const latMatch = embedStr.match(/!3d(-?[\d.]+)/);
+  const lngMatch = embedStr.match(/!2d(-?[\d.]+)/) || embedStr.match(/!4d(-?[\d.]+)/);
+
+  const placeName = placeNameMatch ? decodeURIComponent(placeNameMatch[1].replace(/\+/g, ' ')) : '';
+  const lat = latMatch ? latMatch[1] : '';
+  const lng = lngMatch ? lngMatch[1] : '';
+
+  if (placeName && lat && lng) {
+    return `https://www.google.com/maps/place/${encodeURIComponent(placeName)}/@${lat},${lng},17z`;
+  }
+
+  if (lat && lng) {
+    return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+  }
+
+  if (placeName) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(placeName)}`;
+  }
+
+  return 'https://www.google.com/maps/place/KHANN+BROTERS/@19.9893948,86.0144974,17z';
 };
+

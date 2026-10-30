@@ -28,7 +28,8 @@ exports.getPublicSettings = async (req, res) => {
         storePhone: settings.storePhone,
         whatsappNumber: settings.whatsappNumber,
         storeAddress: settings.storeAddress,
-        googleMapsUrl: formatGoogleMapsEmbedUrl(settings.googleMapsUrl || settings.storeAddress),
+        googleMapsUrl: settings.googleMapsUrl || '',
+        googleMapsEmbedUrl: formatGoogleMapsEmbedUrl(settings.googleMapsUrl || settings.storeAddress),
         announcementBarText: settings.announcementBarText,
         announcementBarActive: settings.announcementBarActive,
         currency: settings.currency,
@@ -79,7 +80,8 @@ exports.updateSettings = async (req, res) => {
           console.warn('Maps short URL expansion note:', e.message);
         }
       }
-      req.body.googleMapsUrl = formatGoogleMapsEmbedUrl(mapUrl);
+      req.body.googleMapsUrl = mapUrl;
+      req.body.googleMapsEmbedUrl = formatGoogleMapsEmbedUrl(mapUrl);
     }
 
     let settings = await Setting.findOne();

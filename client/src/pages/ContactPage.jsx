@@ -8,7 +8,7 @@ const ContactPage = () => {
   const { settings, getWhatsAppLink } = useSettings();
 
   const mapEmbedUrl = formatGoogleMapsEmbedUrl(settings.googleMapsUrl, settings.storeAddress);
-  const directionsUrl = getDirectDirectionsUrl(settings.googleMapsUrl, settings.storeAddress);
+  const directionsUrl = getDirectDirectionsUrl(settings.googleMapsUrl, mapEmbedUrl, settings.storeAddress);
 
   const [formData, setFormData] = useState({
     name: '',
