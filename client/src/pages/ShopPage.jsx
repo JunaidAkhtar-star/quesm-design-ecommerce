@@ -3,6 +3,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import FilterSidebar from '../components/FilterSidebar';
 import QuickViewModal from '../components/QuickViewModal';
+import LuxurySpinner from '../components/LuxurySpinner';
 import SEOMeta from '../components/SEOMeta';
 import { Sparkles, SlidersHorizontal, X } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
@@ -202,10 +203,12 @@ const ShopPage = () => {
         {/* Product Grid Area */}
         <main>
           {loading ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '24px' }}>
-              {[...Array(6)].map((_, i) => (
-                <div key={i} style={{ height: '360px', background: '#f0ede4', borderRadius: 'var(--radius-md)', animation: 'pulse 1.5s infinite' }} />
-              ))}
+            <div style={{ textAlign: 'center', padding: '60px 20px', minHeight: '380px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <LuxurySpinner
+                size="lg"
+                message="Curating Handcrafted Collection..."
+                submessage="Filtering pieces matching your preferences from QueS.M Studio."
+              />
             </div>
           ) : products.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '80px 20px', background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>

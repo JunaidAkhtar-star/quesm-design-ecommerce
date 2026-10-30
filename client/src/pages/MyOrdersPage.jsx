@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Package, Truck, Search, Calendar, ChevronRight, MessageCircle, ExternalLink, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import { useLanguage } from '../context/LanguageContext';
+import LuxurySpinner from '../components/LuxurySpinner';
 import SEOMeta from '../components/SEOMeta';
 
 const MyOrdersPage = () => {
@@ -167,8 +168,19 @@ const MyOrdersPage = () => {
         )}
       </div>
 
+      {/* Rotating Luxury Loading State */}
+      {loading && (
+        <div style={{ background: '#fff', borderRadius: 'var(--radius-lg)', padding: '50px 20px', border: '1px solid var(--border-color)', margin: '20px 0' }}>
+          <LuxurySpinner
+            size="lg"
+            message="Looking Up Your Orders..."
+            submessage="Verifying your mobile number or email in QueS.M Studio records."
+          />
+        </div>
+      )}
+
       {/* Orders List */}
-      {orders.length > 0 ? (
+      {!loading && orders.length > 0 ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {orders.map((o) => {
             const statusStyle = getStatusColor(o.orderStatus);

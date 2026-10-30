@@ -31,6 +31,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import InvoiceModal from '../components/InvoiceModal';
+import LuxurySpinner from '../components/LuxurySpinner';
 import SEOMeta from '../components/SEOMeta';
 import { fetchWithRetry, getCachedData, setCachedData, BOUTIQUE_DEFAULT_CATEGORIES } from '../utils/api';
 import { formatGoogleMapsEmbedUrl } from '../utils/mapHelper';
@@ -1102,9 +1103,11 @@ const AdminDashboardPage = () => {
 
             {loadingCategories && categories.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px 20px', background: '#fff', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-                <Loader2 size={36} color="var(--primary-gold)" className="spin" style={{ margin: '0 auto 12px' }} />
-                <h3 style={{ margin: '0 0 6px' }}>Connecting to Cloud Studio...</h3>
-                <p style={{ color: '#666', fontSize: '0.88rem' }}>Loading boutique collections from cloud database</p>
+                <LuxurySpinner
+                  size="lg"
+                  message="Connecting to Cloud Studio..."
+                  submessage="Loading boutique collections from cloud database."
+                />
               </div>
             ) : categoriesError && categories.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px 20px', background: '#fff', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>

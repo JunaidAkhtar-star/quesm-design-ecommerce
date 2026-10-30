@@ -4,6 +4,7 @@ import { ArrowRight, Sparkles, Heart, Star, ShieldCheck, Instagram, ChevronLeft,
 import ProductCard from '../components/ProductCard';
 import StoryCategories from '../components/StoryCategories';
 import QuickViewModal from '../components/QuickViewModal';
+import LuxurySpinner from '../components/LuxurySpinner';
 import SEOMeta from '../components/SEOMeta';
 import { useLanguage } from '../context/LanguageContext';
 import { useSettings } from '../context/SettingsContext';
@@ -20,7 +21,10 @@ const HomePage = () => {
   const [newArrivals, setNewArrivals] = useState([]);
   const [bestSellers, setBestSellers] = useState([]);
   const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(() => {
+    const cached = getCachedData('featured_products', null);
+    return !cached || cached.length === 0;
+  });
 
   // Trending E-Commerce UI State: Mood Filter & QuickView
   const [activeMood, setActiveMood] = useState('all');
@@ -328,7 +332,15 @@ const HomePage = () => {
             gap: '24px'
           }}
         >
-          {displayedFeatured.length > 0 ? (
+          {loading && displayedFeatured.length === 0 ? (
+            <div style={{ gridColumn: '1 / -1', padding: '60px 20px', minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <LuxurySpinner
+                size="lg"
+                message="Curating Handcrafted Collection..."
+                submessage="Connecting to QueS.M Studio cloud and fetching bespoke jewels."
+              />
+            </div>
+          ) : displayedFeatured.length > 0 ? (
             displayedFeatured.map(prod => (
               <ProductCard key={prod._id} product={prod} onQuickView={handleOpenQuickView} />
             ))

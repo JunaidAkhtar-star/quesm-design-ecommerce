@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Truck, Search, CheckCircle2, Package, Clock, ShieldCheck, MessageCircle } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
+import LuxurySpinner from '../components/LuxurySpinner';
 import SEOMeta from '../components/SEOMeta';
 
 const OrderTrackingPage = () => {
@@ -112,6 +113,17 @@ const OrderTrackingPage = () => {
           </div>
         )}
       </div>
+
+      {/* Rotating Luxury Loading State */}
+      {loading && (
+        <div style={{ background: '#fff', borderRadius: 'var(--radius-lg)', padding: '50px 20px', border: '1px solid var(--border-color)', margin: '20px 0' }}>
+          <LuxurySpinner
+            size="lg"
+            message="Tracking Your Dispatch..."
+            submessage="Connecting with courier networks and studio dispatch logs."
+          />
+        </div>
+      )}
 
       {/* Tracking Results */}
       {order && (

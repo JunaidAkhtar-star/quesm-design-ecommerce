@@ -19,6 +19,7 @@ import LiveSearchModal from './components/LiveSearchModal';
 import CookieBanner from './components/CookieBanner';
 import AbandonedCartReminder from './components/AbandonedCartReminder';
 import MobileBottomNav from './components/MobileBottomNav';
+import NetworkSlowIndicator from './components/NetworkSlowIndicator';
 import ErrorBoundary from './components/ErrorBoundary';
 
 // Pages
@@ -56,6 +57,7 @@ const AppLayout = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <NetworkSlowIndicator />
       {!isAdminPath && <AnnouncementBar />}
       {!isAdminPath && <Navbar onOpenSearch={() => setIsSearchOpen(true)} />}
 

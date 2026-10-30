@@ -5,6 +5,7 @@ import ProductGallery from '../components/ProductGallery';
 import ReviewModal from '../components/ReviewModal';
 import RecentlyViewed, { saveRecentlyViewedProduct } from '../components/RecentlyViewed';
 import ProductCard from '../components/ProductCard';
+import LuxurySpinner from '../components/LuxurySpinner';
 import SEOMeta from '../components/SEOMeta';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -79,8 +80,12 @@ const ProductDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="container" style={{ padding: '80px 20px', textAlign: 'center' }}>
-        <p style={{ color: 'var(--text-muted)' }}>Loading handcrafted treasure...</p>
+      <div className="container" style={{ padding: '90px 20px', minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <LuxurySpinner
+          size="lg"
+          message="Loading Handcrafted Treasure..."
+          submessage="Retrieving artisanal specifications, materials, and boutique photography."
+        />
       </div>
     );
   }

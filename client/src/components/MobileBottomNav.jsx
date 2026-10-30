@@ -71,3 +71,4 @@ const MobileBottomNav = ({ onOpenSearch }) => {
 };
 
 export default MobileBottomNav;
+
